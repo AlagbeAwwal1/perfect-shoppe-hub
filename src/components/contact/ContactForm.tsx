@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
 
 interface FormData {
   name: string;
@@ -70,7 +71,7 @@ const ContactForm = () => {
       console.error('Error sending message:', error);
       toast({
         title: "Error",
-        description: "There was a problem sending your message. Please try again.",
+        description: error.message || "There was a problem sending your message. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -84,7 +85,7 @@ const ContactForm = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <label htmlFor="name" className="block text-gray-700 mb-2">Name</label>
-          <input
+          <Input
             type="text"
             id="name"
             name="name"
@@ -98,7 +99,7 @@ const ContactForm = () => {
         </div>
         <div>
           <label htmlFor="email" className="block text-gray-700 mb-2">Email</label>
-          <input
+          <Input
             type="email"
             id="email"
             name="email"
@@ -113,7 +114,7 @@ const ContactForm = () => {
       </div>
       <div className="mb-6">
         <label htmlFor="subject" className="block text-gray-700 mb-2">Subject</label>
-        <input
+        <Input
           type="text"
           id="subject"
           name="subject"
