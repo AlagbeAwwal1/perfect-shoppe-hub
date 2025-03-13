@@ -86,8 +86,8 @@ const handler = async (req: Request): Promise<Response> => {
     
     const { customer, items, subtotal, recipientEmail } = orderData;
     
-    // Use the provided recipient email or fallback to a default if not provided
-    const toEmail = recipientEmail || "info@theperfectshoppe.com";
+    // Use the provided recipient email or fallback to awwal0421@gmail.com if not provided
+    const toEmail = recipientEmail || "awwal0421@gmail.com";
     
     // Format items for email display
     const itemsList = items.map(item => 
