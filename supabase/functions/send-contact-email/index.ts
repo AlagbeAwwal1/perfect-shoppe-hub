@@ -2,8 +2,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -24,6 +22,13 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Get the API key
+    const apiKey = Deno.env.get("RESEND_API_KEY");
+    if (!apiKey) {
+      throw new Error("RESEND_API_KEY is not set");
+    }
+    
+    const resend = new Resend(apiKey);
     const formData: ContactFormData = await req.json();
     const { name, email, subject, message } = formData;
 

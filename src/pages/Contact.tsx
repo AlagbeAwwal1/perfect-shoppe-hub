@@ -25,13 +25,21 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
+      console.log("Submitting form data:", formData);
+      
       // Send email using the Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('send-contact-email', {
         body: formData
       });
       
       if (error) {
-        throw new Error(error.message);
+        console.error("Error invoking edge function:", error);
+        throw new Error("Failed to send a request to the Edge Function");
+      }
+      
+      if (!data || !data.success) {
+        console.error("Function returned error:", data);
+        throw new Error(data?.error || "Unknown error occurred");
       }
       
       // Show success toast
@@ -47,7 +55,7 @@ const Contact = () => {
         subject: '',
         message: ''
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error);
       toast({
         title: "Error",
