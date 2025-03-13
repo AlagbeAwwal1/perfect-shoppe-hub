@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Facebook, Mail, Phone, MapPin } from 'lucide-react';
+import { Instagram, TikTok, Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
                 <Instagram size={20} />
               </a>
               <a href="#" className="text-white hover:text-brand-gold transition-colors">
-                <Facebook size={20} />
+                <TikTok size={20} />
               </a>
               <a href="mailto:info@theperfectshoppe.com" className="text-white hover:text-brand-gold transition-colors">
                 <Mail size={20} />
