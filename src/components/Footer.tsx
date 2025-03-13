@@ -24,7 +24,7 @@ const Footer: React.FC = () => {
               <a href="https://www.tiktok.com/@theperfectshoppe?_t=ZM-8udXUV1rD5J&_r=1" target="_blank" rel="noopener noreferrer" className="text-white hover:text-brand-gold transition-colors">
                 <FaTiktok size={18} />
               </a>
-              <a href="mailto:info@theperfectshoppe.com" className="text-white hover:text-brand-gold transition-colors">
+              <a href="mailto:faosiatolamide2017@gmail.com" className="text-white hover:text-brand-gold transition-colors">
                 <Mail size={20} />
               </a>
             </div>
@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail size={20} className="text-brand-gold flex-shrink-0" />
-                <p className="text-gray-200">info@theperfectshoppe.com</p>
+                <p className="text-gray-200">faosiatolamide2017@gmail.com</p>
               </div>
             </div>
           </div>
