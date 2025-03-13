@@ -2,38 +2,51 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { products, Product } from '@/data/products';
+import { getAllProducts, getProductsByCategoryFromDB } from '@/data/supabaseProducts';
 import ProductCard from '@/components/ProductCard';
+import { useQuery } from '@tanstack/react-query';
 
 const Products = () => {
   const location = useLocation();
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   
+  // Get category from URL if present
+  const params = new URLSearchParams(location.search);
+  const categoryParam = params.get('category');
+  
   useEffect(() => {
-    // Check if there's a category filter in the URL
-    const params = new URLSearchParams(location.search);
-    const categoryParam = params.get('category');
-    
     if (categoryParam) {
       setActiveCategory(categoryParam);
-      setFilteredProducts(
-        products.filter((product) => product.category === categoryParam)
-      );
     } else {
       setActiveCategory('all');
-      setFilteredProducts(products);
     }
   }, [location.search]);
   
+  // Fetch products from DB based on active category
+  const { data: filteredProducts, isLoading, error } = useQuery({
+    queryKey: ['products', activeCategory],
+    queryFn: async () => {
+      try {
+        if (activeCategory === 'all') {
+          return await getAllProducts();
+        } else {
+          return await getProductsByCategoryFromDB(activeCategory);
+        }
+      } catch (error) {
+        console.error('Error fetching products from DB:', error);
+        // Fallback to static data if DB fetch fails
+        if (activeCategory === 'all') {
+          return products;
+        } else {
+          return products.filter((product) => product.category === activeCategory);
+        }
+      }
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+  
   const filterByCategory = (category: string) => {
     setActiveCategory(category);
-    if (category === 'all') {
-      setFilteredProducts(products);
-    } else {
-      setFilteredProducts(
-        products.filter((product) => product.category === category)
-      );
-    }
   };
 
   return (
@@ -100,7 +113,15 @@ const Products = () => {
           </button>
         </div>
         
-        {filteredProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Loading products...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Failed to load products. Please try again later.</p>
+          </div>
+        ) : filteredProducts && filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />

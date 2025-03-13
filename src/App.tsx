@@ -18,6 +18,11 @@ import NotFound from "./pages/NotFound";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 
+// Admin Pages
+import Dashboard from "./pages/admin/Dashboard";
+import ProductsManagement from "./pages/admin/ProductsManagement";
+import ProductForm from "./pages/admin/ProductForm";
+
 // Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -44,6 +49,13 @@ const App = () => (
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
+                  
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={<Dashboard />} />
+                  <Route path="/admin/products" element={<ProductsManagement />} />
+                  <Route path="/admin/products/new" element={<ProductForm />} />
+                  <Route path="/admin/products/edit/:id" element={<ProductForm />} />
+                  
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>

@@ -2,9 +2,11 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById } from '@/data/products';
+import { getProductByIdFromDB } from '@/data/supabaseProducts';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Minus, Plus } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useQuery } from '@tanstack/react-query';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,9 +14,42 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   
-  const product = id ? getProductById(id) : undefined;
+  const { data: product, isLoading, error } = useQuery({
+    queryKey: ['product', id],
+    queryFn: async () => {
+      if (!id) return null;
+      try {
+        const dbProduct = await getProductByIdFromDB(id);
+        if (dbProduct) return dbProduct;
+        
+        // Fallback to static data if DB fetch fails
+        return getProductById(id);
+      } catch (error) {
+        console.error('Error fetching product from DB:', error);
+        return getProductById(id);
+      }
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
   
-  if (!product) {
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product, quantity);
+    }
+  };
+
+  const incrementQuantity = () => setQuantity(prev => prev + 1);
+  const decrementQuantity = () => setQuantity(prev => prev > 1 ? prev - 1 : 1);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <p className="text-gray-600">Loading product details...</p>
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Product Not Found</h1>
@@ -27,13 +62,6 @@ const ProductDetail = () => {
       </div>
     );
   }
-
-  const handleAddToCart = () => {
-    addToCart(product, quantity);
-  };
-
-  const incrementQuantity = () => setQuantity(prev => prev + 1);
-  const decrementQuantity = () => setQuantity(prev => prev > 1 ? prev - 1 : 1);
 
   return (
     <div className="py-12">
