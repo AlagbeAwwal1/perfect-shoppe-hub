@@ -7,7 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -16,6 +16,13 @@ const Login = () => {
   });
   
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Redirect if already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,10 +49,10 @@ const Login = () => {
         description: "You have successfully logged in",
       });
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Invalid email or password",
+        description: error.message || "Invalid email or password",
         variant: "destructive",
       });
     } finally {

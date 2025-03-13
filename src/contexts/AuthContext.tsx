@@ -1,67 +1,98 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from "@/integrations/supabase/client";
+import { Session, User } from '@supabase/supabase-js';
 
-type User = {
+type AuthUser = {
   id: string;
   name: string;
   email: string;
 };
 
 type AuthContextType = {
-  user: User | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is stored in localStorage
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  const login = async (email: string, password: string) => {
-    // Simple mock authentication
-    // In a real app, this would validate against a backend
-    const mockUser = {
-      id: '1',
-      name: email.split('@')[0],
-      email,
+    // Check for active session
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setAuthState(session);
+      setLoading(false);
+      
+      // Listen for auth state changes
+      const { data: { subscription } } = await supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          setAuthState(session);
+        }
+      );
+      
+      return () => subscription.unsubscribe();
     };
     
-    setUser(mockUser);
-    setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(mockUser));
+    checkSession();
+  }, []);
+
+  const setAuthState = (session: Session | null) => {
+    if (session?.user) {
+      const { id, email } = session.user;
+      const name = email?.split('@')[0] || 'User'; // Default name from email
+      
+      setUser({
+        id,
+        name,
+        email: email || '',
+      });
+      
+      setIsAuthenticated(true);
+    } else {
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  };
+
+  const login = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    if (error) throw error;
   };
 
   const signup = async (name: string, email: string, password: string) => {
-    // Simple mock signup
-    const mockUser = {
-      id: '1',
-      name,
+    // Store name in user metadata
+    const { error } = await supabase.auth.signUp({
       email,
-    };
+      password,
+      options: {
+        data: { name },
+      },
+    });
     
-    setUser(mockUser);
-    setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(mockUser));
+    if (error) throw error;
   };
 
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
   };
+
+  if (loading) {
+    // You could render a loading state here if needed
+    return <div>Loading...</div>;
+  }
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated, login, signup, logout }}>
