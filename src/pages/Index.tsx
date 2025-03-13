@@ -42,27 +42,6 @@ const Index = () => {
       
       <FeaturedProducts />
       <CategorySection />
-      
-      <section className="py-16 bg-brand-purple text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6">Join Our Community</h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Subscribe to our newsletter for exclusive offers, new arrivals, and styling tips.
-          </p>
-          <div className="max-w-md mx-auto">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <input 
-                type="email" 
-                placeholder="Your email address" 
-                className="flex-grow rounded-md py-3 px-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-gold"
-              />
-              <button className="bg-brand-gold text-black font-semibold py-3 px-6 rounded-md hover:bg-brand-gold/90 transition-colors">
-                Subscribe
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };
