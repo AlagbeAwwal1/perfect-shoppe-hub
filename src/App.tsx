@@ -17,7 +17,6 @@ import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
-import Settings from "./pages/Settings";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -45,7 +44,6 @@ const App = () => (
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
