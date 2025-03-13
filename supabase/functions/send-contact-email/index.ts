@@ -22,9 +22,13 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Log incoming request headers to debug
+    console.log("Request headers:", Object.fromEntries(req.headers.entries()));
+    
     // Get the API key
     const apiKey = Deno.env.get("RESEND_API_KEY");
     if (!apiKey) {
+      console.error("RESEND_API_KEY environment variable is not set");
       throw new Error("RESEND_API_KEY is not set");
     }
     

@@ -27,10 +27,15 @@ const Contact = () => {
     try {
       console.log("Submitting form data:", formData);
       
-      // Send email using the Supabase Edge Function
+      // Send email using the Supabase Edge Function with the correct headers
       const { data, error } = await supabase.functions.invoke('send-contact-email', {
-        body: formData
+        body: formData,
+        headers: {
+          "Content-Type": "application/json"
+        }
       });
+      
+      console.log("Response from edge function:", { data, error });
       
       if (error) {
         console.error("Error invoking edge function:", error);
