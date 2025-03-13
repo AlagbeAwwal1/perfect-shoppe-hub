@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
               Providing high-quality Islamic wear and accessories to enhance your spiritual journey with elegance and comfort.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-white hover:text-brand-gold transition-colors">
+              <a href="https://www.instagram.com/theperfectshoppe_?igsh=dDBoN3oxdGtibDJ0" target="_blank" rel="noopener noreferrer" className="text-white hover:text-brand-gold transition-colors">
                 <Instagram size={20} />
               </a>
               <a href="#" className="text-white hover:text-brand-gold transition-colors">
