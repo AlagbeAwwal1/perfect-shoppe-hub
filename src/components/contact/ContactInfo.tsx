@@ -14,7 +14,7 @@ const ContactInfo = () => {
           </div>
           <div>
             <h3 className="font-semibold text-gray-800 mb-1">Address</h3>
-            <p className="text-gray-600">123 Islam Street, Lagos, Nigeria</p>
+            <p className="text-gray-600">24, Babatunde Fadiya Akute Ogun State</p>
           </div>
         </div>
         
@@ -24,7 +24,7 @@ const ContactInfo = () => {
           </div>
           <div>
             <h3 className="font-semibold text-gray-800 mb-1">Phone</h3>
-            <p className="text-gray-600">+234 123 456 7890</p>
+            <p className="text-gray-600">+2349035636061</p>
           </div>
         </div>
         
