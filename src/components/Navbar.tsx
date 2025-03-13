@@ -1,14 +1,22 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, ShoppingBag, User } from 'lucide-react';
+import { Menu, X, ShoppingBag, User, LogOut, Settings } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const { totalItems } = useCart();
 
   return (
@@ -40,12 +48,30 @@ const Navbar: React.FC = () => {
             
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <Link to="/profile">
-                  <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </Link>
-                <Button variant="outline" onClick={logout}>Logout</Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56 bg-white" align="end">
+                    <DropdownMenuLabel>
+                      {user?.name || 'My Account'}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                      <Settings className="h-4 w-4" />
+                      <span>Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="flex items-center gap-2 text-red-600 cursor-pointer" 
+                      onClick={logout}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
@@ -109,21 +135,25 @@ const Navbar: React.FC = () => {
               <div className="pt-4 border-t border-gray-200">
                 {isAuthenticated ? (
                   <div className="flex flex-col space-y-4">
-                    <Link 
-                      to="/profile" 
-                      className="text-gray-700 hover:text-brand-purple py-2"
+                    <div className="text-gray-700 py-2 font-medium">
+                      {user?.name || 'My Account'}
+                    </div>
+                    <button 
+                      className="flex items-center gap-2 text-gray-700 hover:text-brand-purple py-2"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Profile
-                    </Link>
+                      <Settings className="h-4 w-4" />
+                      <span>Settings</span>
+                    </button>
                     <button 
                       onClick={() => {
                         logout();
                         setIsMenuOpen(false);
                       }}
-                      className="text-left text-gray-700 hover:text-brand-purple py-2"
+                      className="flex items-center gap-2 text-red-600 hover:text-red-700 py-2"
                     >
-                      Logout
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
                     </button>
                   </div>
                 ) : (
