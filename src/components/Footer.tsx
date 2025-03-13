@@ -1,9 +1,13 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, MapPin, Mail, Phone } from 'lucide-react';
 import { FaTiktok } from 'react-icons/fa';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Footer: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <footer className="bg-brand-purple text-white pt-12 pb-6">
       <div className="container mx-auto px-4">
@@ -36,14 +40,13 @@ const Footer: React.FC = () => {
                 <Link to="/products" className="text-gray-200 hover:text-white transition-colors">Products</Link>
               </li>
               <li>
-                <Link to="/about" className="text-gray-200 hover:text-white transition-colors">About Us</Link>
-              </li>
-              <li>
                 <Link to="/contact" className="text-gray-200 hover:text-white transition-colors">Contact</Link>
               </li>
-              <li>
-                <Link to="/login" className="text-gray-200 hover:text-white transition-colors">Login</Link>
-              </li>
+              {!isAuthenticated && (
+                <li>
+                  <Link to="/login" className="text-gray-200 hover:text-white transition-colors">Login</Link>
+                </li>
+              )}
             </ul>
           </div>
           
