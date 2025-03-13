@@ -32,26 +32,28 @@ const ContactForm = () => {
     setIsSubmitting(true);
     
     try {
+      // Validate form data before submitting
+      if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+        throw new Error("Please fill out all required fields");
+      }
+      
       console.log("Submitting form data:", formData);
       
-      // Send email using the Supabase Edge Function with the correct headers
+      // Send email using the Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('send-contact-email', {
-        body: formData,
-        headers: {
-          "Content-Type": "application/json"
-        }
+        body: formData
       });
       
       console.log("Response from edge function:", { data, error });
       
       if (error) {
         console.error("Error invoking edge function:", error);
-        throw new Error("Failed to send a request to the Edge Function");
+        throw new Error(error.message || "Failed to send message");
       }
       
-      if (!data || !data.success) {
+      if (!data || data.success === false) {
         console.error("Function returned error:", data);
-        throw new Error(data?.error || "Unknown error occurred");
+        throw new Error(data?.error || "Failed to send message");
       }
       
       // Show success toast
