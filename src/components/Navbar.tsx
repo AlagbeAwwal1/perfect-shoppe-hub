@@ -4,10 +4,12 @@ import { Link } from 'react-router-dom';
 import { Menu, X, ShoppingBag, User } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isAuthenticated, logout } = useAuth();
+  const { totalItems } = useCart();
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -21,11 +23,21 @@ const Navbar: React.FC = () => {
           <div className="hidden md:flex items-center space-x-6">
             <Link to="/" className="text-gray-700 hover:text-brand-purple transition-colors">Home</Link>
             <Link to="/products" className="text-gray-700 hover:text-brand-purple transition-colors">Products</Link>
-            <Link to="/about" className="text-gray-700 hover:text-brand-purple transition-colors">About</Link>
             <Link to="/contact" className="text-gray-700 hover:text-brand-purple transition-colors">Contact</Link>
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
+            <Link to="/cart" className="relative">
+              <Button variant="ghost" size="icon">
+                <ShoppingBag className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-brand-purple text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                    {totalItems}
+                  </span>
+                )}
+              </Button>
+            </Link>
+            
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 <Link to="/profile">
@@ -48,7 +60,18 @@ const Navbar: React.FC = () => {
           </div>
           
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center space-x-2">
+            <Link to="/cart" className="relative mr-2">
+              <Button variant="ghost" size="icon">
+                <ShoppingBag className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-brand-purple text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                    {totalItems}
+                  </span>
+                )}
+              </Button>
+            </Link>
+            
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-700 hover:text-brand-purple"
@@ -75,13 +98,6 @@ const Navbar: React.FC = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Products
-              </Link>
-              <Link 
-                to="/about" 
-                className="text-gray-700 hover:text-brand-purple py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About
               </Link>
               <Link 
                 to="/contact" 
