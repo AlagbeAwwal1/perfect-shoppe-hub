@@ -1,4 +1,3 @@
-
 export type Product = {
   id: string;
   name: string;
@@ -7,6 +6,8 @@ export type Product = {
   image: string;
   category: 'scarf' | 'khimar' | 'accessory' | 'prayer' | 'other';
   featured?: boolean;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export const products: Product[] = [

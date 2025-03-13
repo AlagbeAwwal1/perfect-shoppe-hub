@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Product } from "./products";
 
@@ -13,7 +12,10 @@ export async function getAllProducts(): Promise<Product[]> {
     throw error;
   }
 
-  return data || [];
+  return (data || []).map(item => ({
+    ...item,
+    category: item.category as Product['category']
+  }));
 }
 
 export async function getFeaturedProductsFromDB(): Promise<Product[]> {
@@ -28,7 +30,10 @@ export async function getFeaturedProductsFromDB(): Promise<Product[]> {
     throw error;
   }
 
-  return data || [];
+  return (data || []).map(item => ({
+    ...item,
+    category: item.category as Product['category']
+  }));
 }
 
 export async function getProductsByCategoryFromDB(category: string): Promise<Product[]> {
@@ -43,7 +48,10 @@ export async function getProductsByCategoryFromDB(category: string): Promise<Pro
     throw error;
   }
 
-  return data || [];
+  return (data || []).map(item => ({
+    ...item,
+    category: item.category as Product['category']
+  }));
 }
 
 export async function getProductByIdFromDB(id: string): Promise<Product | null> {
@@ -58,7 +66,12 @@ export async function getProductByIdFromDB(id: string): Promise<Product | null> 
     throw error;
   }
 
-  return data;
+  if (!data) return null;
+  
+  return {
+    ...data,
+    category: data.category as Product['category']
+  };
 }
 
 export async function uploadProductImage(file: File): Promise<string> {
