@@ -15,6 +15,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           src={product.image} 
           alt={product.name} 
           className="w-full h-full object-cover object-center transition-all duration-300 group-hover:scale-105"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/placeholder.svg'; // Fallback image if loading fails
+          }}
         />
       </div>
       <div className="p-4">

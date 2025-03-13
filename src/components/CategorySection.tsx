@@ -57,6 +57,10 @@ const CategorySection: React.FC = () => {
                 src={category.image} 
                 alt={category.name} 
                 className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/placeholder.svg'; // Fallback image if loading fails
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-6">
