@@ -7,21 +7,27 @@ type AuthUser = {
   id: string;
   name: string;
   email: string;
+  isAdmin: boolean;
 };
 
 type AuthContextType = {
   user: AuthUser | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 };
+
+// Admin email - you can replace this with your actual admin email
+const ADMIN_EMAIL = "admin@example.com";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,17 +54,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (session?.user) {
       const { id, email } = session.user;
       const name = email?.split('@')[0] || 'User'; // Default name from email
+      const userIsAdmin = email === ADMIN_EMAIL;
       
       setUser({
         id,
         name,
         email: email || '',
+        isAdmin: userIsAdmin,
       });
       
       setIsAuthenticated(true);
+      setIsAdmin(userIsAdmin);
     } else {
       setUser(null);
       setIsAuthenticated(false);
+      setIsAdmin(false);
     }
   };
 
@@ -95,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

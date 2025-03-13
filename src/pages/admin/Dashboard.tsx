@@ -12,10 +12,10 @@ import {
 } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   
-  // Redirect if not authenticated
-  if (!isAuthenticated) {
+  // Redirect if not authenticated or not an admin
+  if (!isAuthenticated || !isAdmin) {
     return <Navigate to="/login" />;
   }
 

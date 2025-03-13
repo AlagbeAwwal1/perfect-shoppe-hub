@@ -12,7 +12,7 @@ const Navbar = () => {
   const { totalItems } = useCart();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -20,7 +20,8 @@ const Navbar = () => {
     { name: "Contact", path: "/contact" },
   ];
 
-  if (isAuthenticated) {
+  // Only add Admin link if user is an admin
+  if (isAuthenticated && isAdmin) {
     navLinks.push({ name: "Admin", path: "/admin" });
   }
 
