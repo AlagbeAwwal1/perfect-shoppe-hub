@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, MapPin, Mail, Phone } from 'lucide-react';
@@ -18,7 +17,7 @@ const Footer: React.FC = () => {
               <a href="https://www.instagram.com/theperfectshoppe_?igsh=dDBoN3oxdGtibDJ0" target="_blank" rel="noopener noreferrer" className="text-white hover:text-brand-gold transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="text-white hover:text-brand-gold transition-colors">
+              <a href="https://www.tiktok.com/@theperfectshoppe?_t=ZM-8udXUV1rD5J&_r=1" target="_blank" rel="noopener noreferrer" className="text-white hover:text-brand-gold transition-colors">
                 <FaTiktok size={18} />
               </a>
               <a href="mailto:info@theperfectshoppe.com" className="text-white hover:text-brand-gold transition-colors">
