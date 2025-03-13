@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, isAuthenticated } = useAuth();
   const { toast } = useToast();
   
@@ -17,12 +17,15 @@ const Login = () => {
   
   const [isLoading, setIsLoading] = useState(false);
   
+  // Get the returnUrl from location state if it exists
+  const returnUrl = location.state?.returnUrl || '/';
+  
   // Redirect if already authenticated
   React.useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      navigate(returnUrl);
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, returnUrl]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -48,7 +51,7 @@ const Login = () => {
         title: "Success",
         description: "You have successfully logged in",
       });
-      navigate('/');
+      navigate(returnUrl);
     } catch (error: any) {
       toast({
         title: "Error",

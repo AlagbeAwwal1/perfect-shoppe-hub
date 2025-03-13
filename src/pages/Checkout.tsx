@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -28,6 +27,21 @@ const Checkout = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please login to complete your purchase.",
+        variant: "destructive",
+      });
+      navigate('/login', { state: { returnUrl: '/checkout' } });
+    }
+  }, [isAuthenticated, navigate, toast]);
+  
+  if (!isAuthenticated) {
+    return null;
+  }
+  
   if (items.length === 0 && !orderComplete) {
     navigate('/cart');
     return null;
@@ -41,7 +55,6 @@ const Checkout = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form
     const requiredFields = ['firstName', 'lastName', 'email', 'address', 'city', 'state', 'phoneNumber'];
     const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
     
@@ -54,7 +67,6 @@ const Checkout = () => {
       return;
     }
     
-    // Simulate order processing
     setIsSubmitting(true);
     
     setTimeout(() => {
