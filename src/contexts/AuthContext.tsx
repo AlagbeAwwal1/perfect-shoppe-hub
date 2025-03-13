@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from '@supabase/supabase-js';
@@ -20,7 +19,7 @@ type AuthContextType = {
 };
 
 // Admin email - you can replace this with your actual admin email
-const ADMIN_EMAIL = "admin@example.com";
+const ADMIN_EMAIL = "alagbeawwal@gmail.com";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
