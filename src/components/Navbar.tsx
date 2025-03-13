@@ -4,15 +4,25 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, ShoppingBag, User } from "lucide-react";
+import { Menu, ShoppingBag, User, LogOut } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const { totalItems } = useCart();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, user, logout } = useAuth();
+  const { toast } = useToast();
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -24,6 +34,22 @@ const Navbar = () => {
   if (isAuthenticated && isAdmin) {
     navLinks.push({ name: "Admin", path: "/admin" });
   }
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to log out",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <nav className="bg-background py-4 shadow-sm sticky top-0 z-50">
@@ -57,9 +83,21 @@ const Navbar = () => {
                   Cart ({totalItems})
                 </Link>
                 {isAuthenticated ? (
-                  <Link to="/profile" className="text-lg py-2 block" onClick={() => setMobileMenuOpen(false)}>
-                    Profile
-                  </Link>
+                  <>
+                    <div className="py-2 border-t mt-2">
+                      <p className="text-gray-500 text-sm">Signed in as</p>
+                      <p className="font-medium">{user?.email}</p>
+                      {user?.isAdmin && (
+                        <div className="mt-1 text-xs bg-brand-purple/10 text-brand-purple px-2 py-1 rounded inline-block">
+                          Administrator
+                        </div>
+                      )}
+                    </div>
+                    <button onClick={handleLogout} className="text-lg py-2 text-red-500 flex items-center">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </button>
+                  </>
                 ) : (
                   <>
                     <Link to="/login" className="text-lg py-2 block" onClick={() => setMobileMenuOpen(false)}>
@@ -96,9 +134,35 @@ const Navbar = () => {
               </Link>
 
               {isAuthenticated ? (
-                <Link to="/profile" className="hover:text-gray-600 transition-colors">
-                  <User />
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <div className="px-2 py-1.5">
+                      <p className="text-sm font-medium">{user?.name || user?.email}</p>
+                      <p className="text-xs text-muted-foreground">{user?.email}</p>
+                      {user?.isAdmin && (
+                        <div className="mt-1 text-xs bg-brand-purple/10 text-brand-purple px-2 py-0.5 rounded inline-block">
+                          Administrator
+                        </div>
+                      )}
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <button 
+                        onClick={handleLogout}
+                        className="w-full flex items-center cursor-pointer text-red-500 hover:text-red-600"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Sign out</span>
+                      </button>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <>
                   <Link to="/login" className="hover:text-gray-600 transition-colors">

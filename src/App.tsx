@@ -17,7 +17,6 @@ import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
-import Profile from "./pages/Profile";
 
 // Admin Pages
 import Dashboard from "./pages/admin/Dashboard";
@@ -50,7 +49,6 @@ const App = () => (
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/profile" element={<Profile />} />
                   
                   {/* Admin Routes */}
                   <Route path="/admin" element={<Dashboard />} />
