@@ -13,25 +13,25 @@ const categories: Category[] = [
   {
     id: '1',
     name: 'Scarves',
-    image: '/placeholder.svg',
+    image: '/lovable-uploads/1b0a00e0-ab3e-4542-8f78-29fae5c4442e.png',
     slug: 'scarf'
   },
   {
     id: '2',
     name: 'Khimars',
-    image: '/placeholder.svg',
+    image: '/lovable-uploads/33be1f5e-8f2d-4dce-862c-da484899dc05.png',
     slug: 'khimar'
   },
   {
     id: '3',
     name: 'Prayer Essentials',
-    image: '/placeholder.svg',
+    image: '/lovable-uploads/65187a7a-94cd-48f3-a5e3-c199c9d3b5e8.png',
     slug: 'prayer'
   },
   {
     id: '4',
     name: 'Accessories',
-    image: '/placeholder.svg',
+    image: '/lovable-uploads/f7d2de27-1d73-483d-94ae-b9e0dbd8cc37.png',
     slug: 'accessory'
   }
 ];
