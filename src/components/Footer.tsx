@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, MessageCircle, Mail, Phone, MapPin } from 'lucide-react';
+import { Instagram, MapPin, Mail, Phone } from 'lucide-react';
+import { FaTiktok } from 'react-icons/fa';
 
 const Footer: React.FC = () => {
   return (
@@ -18,7 +19,7 @@ const Footer: React.FC = () => {
                 <Instagram size={20} />
               </a>
               <a href="#" className="text-white hover:text-brand-gold transition-colors">
-                <MessageCircle size={20} />
+                <FaTiktok size={18} />
               </a>
               <a href="mailto:info@theperfectshoppe.com" className="text-white hover:text-brand-gold transition-colors">
                 <Mail size={20} />
