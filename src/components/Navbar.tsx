@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const { totalItems } = useCart();
-  const { isMobile } = useIsMobile();
+  const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isAuthenticated } = useAuth();
 
