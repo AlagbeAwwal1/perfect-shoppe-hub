@@ -8,9 +8,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-// Define the recipient email - this can be easily changed here
-const RECIPIENT_EMAIL = "your-new-email@example.com"; // Change this to your desired email address
-
 interface ContactFormData {
   name: string;
   email: string;
@@ -95,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
     const resend = new Resend(apiKey);
     const emailResponse = await resend.emails.send({
       from: "Contact Form <onboarding@resend.dev>",
-      to: [RECIPIENT_EMAIL], // Using the constant defined at the top
+      to: ["awwal0421@gmail.com"],
       subject: `New Contact Form Submission: ${subject}`,
       html: `
         <h1>New Contact Form Submission</h1>
