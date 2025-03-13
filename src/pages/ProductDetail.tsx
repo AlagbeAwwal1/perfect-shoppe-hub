@@ -52,6 +52,10 @@ const ProductDetail = () => {
               src={product.image} 
               alt={product.name} 
               className="w-full h-full object-cover object-center"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/placeholder.svg'; // Fallback image if loading fails
+              }}
             />
           </div>
           
