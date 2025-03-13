@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useCheckout = () => {
   const { user } = useAuth();
-  const { clearCart } = useCart();
+  const { items, clearCart, subtotal } = useCart();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -28,6 +29,43 @@ export const useCheckout = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
+  const sendOrderNotification = async () => {
+    try {
+      const orderData = {
+        customer: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          phoneNumber: formData.phoneNumber
+        },
+        items,
+        subtotal
+      };
+      
+      console.log("Sending order notification with data:", orderData);
+      
+      const { data, error } = await supabase.functions.invoke('send-order-notification', {
+        body: orderData
+      });
+      
+      if (error) {
+        console.error("Error sending order notification:", error);
+        toast({
+          title: "Order Placed",
+          description: "Your order was placed, but we couldn't send you a confirmation email.",
+          variant: "destructive",
+        });
+      } else {
+        console.log("Order notification sent successfully:", data);
+      }
+    } catch (error) {
+      console.error("Exception when sending order notification:", error);
+    }
+  };
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -43,9 +81,22 @@ export const useCheckout = () => {
       return;
     }
     
+    if (items.length === 0) {
+      toast({
+        title: "Your cart is empty",
+        description: "Please add items to your cart before placing an order.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
-    setTimeout(() => {
+    // Simulate order processing with a timeout
+    setTimeout(async () => {
+      // Send order notification to admin
+      await sendOrderNotification();
+      
       setIsSubmitting(false);
       setOrderComplete(true);
       clearCart();
