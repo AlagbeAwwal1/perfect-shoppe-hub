@@ -21,11 +21,6 @@ const Hero: React.FC = () => {
                 Browse Collection
               </Button>
             </Link>
-            <Link to="/about">
-              <Button variant="outline" className="border-white text-white hover:bg-white/10">
-                Our Story
-              </Button>
-            </Link>
           </div>
         </div>
       </div>

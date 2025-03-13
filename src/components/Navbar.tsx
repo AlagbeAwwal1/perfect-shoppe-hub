@@ -59,10 +59,12 @@ const Navbar: React.FC = () => {
                       {user?.name || 'My Account'}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                      <Settings className="h-4 w-4" />
-                      <span>Settings</span>
-                    </DropdownMenuItem>
+                    <Link to="/settings">
+                      <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                        <Settings className="h-4 w-4" />
+                        <span>Settings</span>
+                      </DropdownMenuItem>
+                    </Link>
                     <DropdownMenuItem 
                       className="flex items-center gap-2 text-red-600 cursor-pointer" 
                       onClick={logout}
@@ -138,13 +140,14 @@ const Navbar: React.FC = () => {
                     <div className="text-gray-700 py-2 font-medium">
                       {user?.name || 'My Account'}
                     </div>
-                    <button 
+                    <Link 
+                      to="/settings"
                       className="flex items-center gap-2 text-gray-700 hover:text-brand-purple py-2"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <Settings className="h-4 w-4" />
                       <span>Settings</span>
-                    </button>
+                    </Link>
                     <button 
                       onClick={() => {
                         logout();
