@@ -8,8 +8,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-// Define the recipient email - this can be easily changed here
-const RECIPIENT_EMAIL = "info@theperfectshoppe.com";
 // Define the sender email
 const SENDER_EMAIL = "Order Notification <onboarding@resend.dev>";
 
@@ -34,6 +32,7 @@ interface OrderData {
   };
   items: OrderItem[];
   subtotal: number;
+  recipientEmail: string; // Add recipient email to the interface
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -85,7 +84,10 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
     
-    const { customer, items, subtotal } = orderData;
+    const { customer, items, subtotal, recipientEmail } = orderData;
+    
+    // Use the provided recipient email or fallback to a default if not provided
+    const toEmail = recipientEmail || "info@theperfectshoppe.com";
     
     // Format items for email display
     const itemsList = items.map(item => 
@@ -97,12 +99,12 @@ const handler = async (req: Request): Promise<Response> => {
       </tr>`
     ).join('');
 
-    console.log("Sending email notification for order");
+    console.log("Sending email notification for order to:", toEmail);
 
     const resend = new Resend(apiKey);
     const emailResponse = await resend.emails.send({
       from: SENDER_EMAIL,
-      to: [RECIPIENT_EMAIL],
+      to: [toEmail],
       subject: `New Order from ${customer.firstName} ${customer.lastName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

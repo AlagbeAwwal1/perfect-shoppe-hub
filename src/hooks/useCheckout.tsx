@@ -42,7 +42,8 @@ export const useCheckout = () => {
           phoneNumber: formData.phoneNumber
         },
         items,
-        subtotal
+        subtotal,
+        recipientEmail: "awwal0421@gmail.com" // Add the recipient email
       };
       
       console.log("Sending order notification with data:", orderData);
