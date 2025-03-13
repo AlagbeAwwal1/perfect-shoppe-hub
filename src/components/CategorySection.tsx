@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { getProductsByCategoryFromDB } from '@/data/supabaseProducts';
 
 interface Category {
   id: string;
   name: string;
-  image: string;
   slug: string;
 }
 
@@ -13,30 +14,47 @@ const categories: Category[] = [
   {
     id: '1',
     name: 'Scarves',
-    image: '/placeholder.svg',
     slug: 'scarf'
   },
   {
     id: '2',
     name: 'Khimars',
-    image: '/placeholder.svg',
     slug: 'khimar'
   },
   {
     id: '3',
     name: 'Prayer Essentials',
-    image: '/placeholder.svg',
     slug: 'prayer'
   },
   {
     id: '4',
     name: 'Accessories',
-    image: '/placeholder.svg',
     slug: 'accessory'
   }
 ];
 
 const CategorySection: React.FC = () => {
+  // Fetch products for each category to get their images
+  const categoryQueries = categories.map(category => {
+    return useQuery({
+      queryKey: ['categoryImage', category.slug],
+      queryFn: async () => {
+        const products = await getProductsByCategoryFromDB(category.slug);
+        return products.length > 0 ? products[0].image : '/placeholder.svg';
+      },
+      staleTime: 1000 * 60 * 60, // 1 hour
+    });
+  });
+
+  // Combine category data with fetched images
+  const categoriesWithImages = categories.map((category, index) => {
+    const { data: image, isLoading, isError } = categoryQueries[index];
+    return {
+      ...category,
+      image: (!isLoading && !isError && image) ? image : '/placeholder.svg'
+    };
+  });
+
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
@@ -47,7 +65,7 @@ const CategorySection: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map(category => (
+          {categoriesWithImages.map(category => (
             <Link
               key={category.id}
               to={`/products?category=${category.slug}`}
