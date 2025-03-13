@@ -13,6 +13,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [imageError, setImageError] = useState(false);
   
   const { data: product, isLoading, error } = useQuery({
     queryKey: ['product', id],
@@ -76,15 +77,21 @@ const ProductDetail = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="bg-gray-100 rounded-lg overflow-hidden h-96 md:h-[500px]">
-            <img 
-              src={product.image} 
-              alt={product.name} 
-              className="w-full h-full object-cover object-center"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = '/placeholder.svg'; // Fallback image if loading fails
-              }}
-            />
+            {imageError ? (
+              <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                <span className="text-gray-500">Image not available</span>
+              </div>
+            ) : (
+              <img 
+                src={product.image} 
+                alt={product.name} 
+                className="w-full h-full object-cover object-center"
+                onError={(e) => {
+                  console.error(`Failed to load image: ${product.image}`);
+                  setImageError(true);
+                }}
+              />
+            )}
           </div>
           
           <div>
