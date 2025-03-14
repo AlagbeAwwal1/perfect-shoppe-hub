@@ -107,7 +107,7 @@ const Footer: React.FC = () => {
           </div>
           
           <div className="md:col-span-4 md:col-start-9 animate-fade-in delay-200">
-            <Card className="bg-white/5 backdrop-blur-sm border-white/10 shadow-xl p-6 hover-lift">
+            <Card className="bg-white/5 backdrop-blur-sm border-white/10 shadow-xl p-6 hover-lift text-center">
               <h3 className="text-xl font-bold mb-4 text-white relative inline-block">
                 Contact Us
                 <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-brand-gold"></span>
@@ -117,7 +117,7 @@ const Footer: React.FC = () => {
                   <div className="bg-brand-gold/20 p-2.5 rounded-full flex-shrink-0 group-hover:bg-brand-gold/30 transition-colors">
                     <MapPin size={18} className="text-white" />
                   </div>
-                  <div>
+                  <div className="text-left">
                     <p className="text-gray-200 text-sm">24, Babatunde Fadiya St., Akute, Ogun State</p>
                   </div>
                 </div>
@@ -126,7 +126,7 @@ const Footer: React.FC = () => {
                   <div className="bg-brand-gold/20 p-2.5 rounded-full flex-shrink-0 group-hover:bg-brand-gold/30 transition-colors">
                     <Phone size={18} className="text-white" />
                   </div>
-                  <div>
+                  <div className="text-left">
                     <p className="text-gray-200 text-sm">+234 903 563 6061</p>
                   </div>
                 </div>
@@ -135,7 +135,7 @@ const Footer: React.FC = () => {
                   <div className="bg-brand-gold/20 p-2.5 rounded-full flex-shrink-0 group-hover:bg-brand-gold/30 transition-colors">
                     <Mail size={18} className="text-white" />
                   </div>
-                  <div>
+                  <div className="text-left">
                     <p className="text-gray-200 text-sm">faosiatolamide2017@gmail.com</p>
                   </div>
                 </div>
