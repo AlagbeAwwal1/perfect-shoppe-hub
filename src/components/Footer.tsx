@@ -7,9 +7,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Footer: React.FC = () => {
   const { isAuthenticated } = useAuth();
+  const isMobile = useIsMobile();
   
   return (
     <footer className="bg-gradient-to-br from-brand-purple to-purple-700 text-white pt-14 pb-8 overflow-hidden relative">
@@ -84,7 +86,7 @@ const Footer: React.FC = () => {
               Quick Links
               <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-brand-gold"></span>
             </h3>
-            <ul className="space-y-3">
+            <ul className={`${isMobile ? 'grid grid-cols-2 gap-x-4' : 'space-y-3'}`}>
               {[
                 { to: "/", label: "Home" },
                 { to: "/products", label: "Products" },
@@ -113,7 +115,7 @@ const Footer: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-start space-x-3 group">
                   <div className="bg-brand-gold/20 p-2.5 rounded-full flex-shrink-0 group-hover:bg-brand-gold/30 transition-colors">
-                    <MapPin size={18} className="text-brand-gold" />
+                    <MapPin size={18} className="text-white" />
                   </div>
                   <div>
                     <p className="text-gray-200 text-sm">24, Babatunde Fadiya St., Akute, Ogun State</p>
@@ -122,7 +124,7 @@ const Footer: React.FC = () => {
                 
                 <div className="flex items-start space-x-3 group">
                   <div className="bg-brand-gold/20 p-2.5 rounded-full flex-shrink-0 group-hover:bg-brand-gold/30 transition-colors">
-                    <Phone size={18} className="text-brand-gold" />
+                    <Phone size={18} className="text-white" />
                   </div>
                   <div>
                     <p className="text-gray-200 text-sm">+234 903 563 6061</p>
@@ -131,7 +133,7 @@ const Footer: React.FC = () => {
                 
                 <div className="flex items-start space-x-3 group">
                   <div className="bg-brand-gold/20 p-2.5 rounded-full flex-shrink-0 group-hover:bg-brand-gold/30 transition-colors">
-                    <Mail size={18} className="text-brand-gold" />
+                    <Mail size={18} className="text-white" />
                   </div>
                   <div>
                     <p className="text-gray-200 text-sm">faosiatolamide2017@gmail.com</p>
