@@ -56,7 +56,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo and Brand */}
         <Link to="/" className="text-xl font-bold">
-          MyStore
+          ThePerfectShoppe
         </Link>
 
         {/* Mobile Menu Button */}
