@@ -2,28 +2,30 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ShoppingBag } from 'lucide-react';
+import { ChevronRight, ShoppingBag, Sparkles } from 'lucide-react';
 
 const Hero: React.FC = () => {
   return (
-    <section className="relative bg-gradient-to-br from-brand-purple to-purple-800 text-white overflow-hidden">
+    <section className="relative bg-gradient-to-br from-brand-purple to-purple-800 text-white overflow-hidden gradient-animate">
       <div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-20 bg-cover bg-center"></div>
       
       {/* Decorative elements */}
-      <div className="absolute top-20 left-10 w-20 h-20 rounded-full bg-brand-gold/20 animate-float" style={{ animationDelay: "0s" }}></div>
-      <div className="absolute bottom-20 left-1/4 w-16 h-16 rounded-full bg-brand-gold/10 animate-float" style={{ animationDelay: "1s" }}></div>
-      <div className="absolute top-1/3 right-10 w-24 h-24 rounded-full bg-brand-gold/15 animate-float" style={{ animationDelay: "1.5s" }}></div>
+      <div className="decorative-dot top-20 left-10 w-20 h-20" style={{ animationDelay: "0s" }}></div>
+      <div className="decorative-dot bottom-20 left-1/4 w-16 h-16" style={{ animationDelay: "1s" }}></div>
+      <div className="decorative-dot top-1/3 right-10 w-24 h-24" style={{ animationDelay: "1.5s" }}></div>
+      <div className="decorative-circle top-40 right-1/4 w-32 h-32" style={{ animationDelay: "0.5s" }}></div>
+      <div className="decorative-circle bottom-40 left-20 w-40 h-40" style={{ animationDelay: "2s" }}></div>
       
       <div className="container mx-auto px-4 py-20 md:py-32 relative z-10">
         <div className="max-w-2xl animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight animate-slide-in-left">
             Modest Fashion <br/>
-            <span className="text-brand-gold drop-shadow-md shimmer">Elegantly Crafted</span>
+            <span className="text-brand-gold drop-shadow-md shimmer animate-slide-in-right delay-200">Elegantly Crafted</span>
           </h1>
-          <p className="text-lg md:text-xl mb-8 text-gray-200 animate-slide-in-right" style={{ animationDelay: "200ms" }}>
+          <p className="text-lg md:text-xl mb-8 text-gray-200 animate-slide-in-right delay-300">
             Discover our premium collection of Islamic wear that combines modesty with contemporary style and comfort.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 animate-slide-in-right" style={{ animationDelay: "400ms" }}>
+          <div className="flex flex-col sm:flex-row gap-4 animate-slide-in-right delay-400">
             <Link to="/products">
               <Button className="bg-gradient-to-r from-brand-gold to-yellow-500 text-black hover:from-yellow-500 hover:to-brand-gold shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 group">
                 Browse Collection
@@ -31,12 +33,17 @@ const Hero: React.FC = () => {
               </Button>
             </Link>
             <Link to="/contact">
-              <Button variant="outline" className="border-white text-white hover:bg-white/10 transform transition-all duration-300 hover:scale-105">
+              <Button variant="outline" className="border-white text-white hover:bg-white/10 transform transition-all duration-300 hover:scale-105 hover-glow">
                 Contact Us
                 <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
           </div>
+        </div>
+        
+        {/* Floating sparkle icon */}
+        <div className="absolute top-1/4 right-1/4 animate-float" style={{ animationDelay: "1.2s" }}>
+          <Sparkles className="h-8 w-8 text-brand-gold/60" />
         </div>
       </div>
       

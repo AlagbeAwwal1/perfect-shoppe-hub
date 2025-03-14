@@ -61,6 +61,11 @@
   main {
     @apply animate-fade-in;
   }
+  
+  /* Add page transition animations */
+  .page-container {
+    @apply animate-fade-in;
+  }
 }
 
 @layer components {
@@ -84,7 +89,7 @@
     @apply content-[''] absolute bottom-0 left-0 w-16 h-1 bg-brand-gold;
   }
   
-  /* New animated classes */
+  /* Animated classes */
   .animate-float {
     animation: float 3s ease-in-out infinite;
   }
@@ -126,6 +131,37 @@
     transform: rotate(30deg);
     animation: shimmer 3s infinite;
   }
+  
+  /* New decorative elements */
+  .decorative-dot {
+    @apply absolute rounded-full bg-brand-gold/20 animate-float;
+  }
+  
+  .decorative-circle {
+    @apply absolute rounded-full border-2 border-brand-purple/10 animate-pulse-slow;
+  }
+  
+  /* Form styles with animations */
+  .input-animated {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent;
+  }
+  
+  .card-animated {
+    @apply bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl p-6;
+  }
+  
+  /* Animated background gradient */
+  .gradient-animate {
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+  }
+  
+  /* Staggered item animations for lists */
+  .stagger-item-appear {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: stagger-appear 0.5s ease forwards;
+  }
 }
 
 @keyframes float {
@@ -152,6 +188,25 @@
   }
   50% {
     opacity: 0.7;
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes stagger-appear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -189,6 +244,39 @@
     }
   }
   
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slide-in-up {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes rotate-in {
+    from {
+      transform: rotate(-5deg) scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: rotate(0) scale(1);
+      opacity: 1;
+    }
+  }
+  
   .animate-fade-in {
     animation: fade-in 0.5s ease-out forwards;
   }
@@ -199,6 +287,18 @@
   
   .animate-slide-in-right {
     animation: slide-in-right 0.5s ease-out forwards;
+  }
+  
+  .animate-slide-in-left {
+    animation: slide-in-left 0.5s ease-out forwards;
+  }
+  
+  .animate-slide-in-up {
+    animation: slide-in-up 0.5s ease-out forwards;
+  }
+  
+  .animate-rotate-in {
+    animation: rotate-in 0.5s ease-out forwards;
   }
   
   .delay-100 {
@@ -219,5 +319,17 @@
   
   .delay-500 {
     animation-delay: 500ms;
+  }
+  
+  .delay-600 {
+    animation-delay: 600ms;
+  }
+  
+  .delay-700 {
+    animation-delay: 700ms;
+  }
+  
+  .delay-800 {
+    animation-delay: 800ms;
   }
 }
