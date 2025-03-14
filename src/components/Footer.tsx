@@ -86,7 +86,7 @@ const Footer: React.FC = () => {
               Quick Links
               <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-brand-gold"></span>
             </h3>
-            <ul className={`${isMobile ? 'grid grid-cols-3 gap-x-4' : 'space-y-3'}`}>
+            <ul className={`${isMobile ? 'grid grid-cols-3 gap-x-4 place-items-center' : 'space-y-3'}`}>
               {[
                 { to: "/", label: "Home" },
                 { to: "/products", label: "Products" },
