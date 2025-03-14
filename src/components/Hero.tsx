@@ -95,8 +95,6 @@ const Hero: React.FC = () => {
         animate={{ opacity: 0.2 }}
         transition={{ delay: 0.5, duration: 1.5 }}
         variants={floatingVariants}
-        initial="initial"
-        animate="animate"
       />
       
       <motion.div 
@@ -105,8 +103,6 @@ const Hero: React.FC = () => {
         animate={{ opacity: 0.2 }}
         transition={{ delay: 1, duration: 1.5 }}
         variants={floatingVariants}
-        initial="initial"
-        animate="animate"
       />
       
       <motion.div 
@@ -115,8 +111,6 @@ const Hero: React.FC = () => {
         animate={{ opacity: 0.2 }}
         transition={{ delay: 1.5, duration: 1.5 }}
         variants={floatingVariants}
-        initial="initial"
-        animate="animate"
       />
       
       <motion.div 
