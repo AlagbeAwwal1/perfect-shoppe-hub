@@ -16,7 +16,8 @@ import {
 } from 'lucide-react';
 import { 
   getAllProducts, 
-  deleteProduct 
+  deleteProduct,
+  updateProduct
 } from '@/data/supabaseProducts';
 import { Product } from '@/data/products';
 
@@ -27,6 +28,7 @@ const ProductsManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
+  const [updatingFeatured, setUpdatingFeatured] = useState<string | null>(null);
   
   useEffect(() => {
     fetchProducts();
@@ -66,6 +68,37 @@ const ProductsManagement = () => {
         description: "Please try again later",
         variant: "destructive"
       });
+    }
+  };
+
+  const toggleFeaturedStatus = async (product: Product) => {
+    try {
+      setUpdatingFeatured(product.id);
+      const updatedProduct = {
+        ...product,
+        featured: !product.featured
+      };
+      
+      await updateProduct(updatedProduct);
+      
+      // Update local state
+      setProducts(products.map(p => 
+        p.id === product.id ? {...p, featured: !p.featured} : p
+      ));
+      
+      toast({
+        title: updatedProduct.featured ? "Product featured" : "Product unfeatured",
+        description: `${product.name} has been ${updatedProduct.featured ? 'added to' : 'removed from'} featured products`,
+      });
+    } catch (error) {
+      console.error('Error updating featured status:', error);
+      toast({
+        title: "Failed to update product",
+        description: "Please try again later",
+        variant: "destructive"
+      });
+    } finally {
+      setUpdatingFeatured(null);
     }
   };
   
@@ -175,11 +208,21 @@ const ProductsManagement = () => {
                   <td className="px-4 py-3 capitalize">{product.category}</td>
                   <td className="px-4 py-3 font-medium">₦{product.price.toLocaleString()}</td>
                   <td className="px-4 py-3">
-                    {product.featured ? (
-                      <Star className="h-5 w-5 text-brand-gold fill-brand-gold" />
-                    ) : (
-                      <Star className="h-5 w-5 text-gray-300" />
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleFeaturedStatus(product)}
+                      disabled={updatingFeatured === product.id}
+                      className="p-1"
+                    >
+                      {updatingFeatured === product.id ? (
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-t-transparent border-brand-gold" />
+                      ) : product.featured ? (
+                        <Star className="h-5 w-5 text-brand-gold fill-brand-gold" />
+                      ) : (
+                        <Star className="h-5 w-5 text-gray-300" />
+                      )}
+                    </Button>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
