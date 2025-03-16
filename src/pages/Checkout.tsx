@@ -19,6 +19,7 @@ const Checkout = () => {
     isSubmitting, 
     orderComplete, 
     emailSentStatus, 
+    orderDetails,
     handleChange, 
     handleSubmit 
   } = useCheckout();
@@ -44,7 +45,11 @@ const Checkout = () => {
   }
   
   if (orderComplete) {
-    return <OrderSuccess emailStatus={emailSentStatus} customerEmail={formData.email} />;
+    return <OrderSuccess 
+      emailStatus={emailSentStatus} 
+      customerEmail={formData.email}
+      orderDetails={orderDetails}
+    />;
   }
   
   return (

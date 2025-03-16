@@ -24,6 +24,7 @@ export const useCheckout = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [emailSentStatus, setEmailSentStatus] = useState<'success' | 'limited' | 'failed' | null>(null);
+  const [orderDetails, setOrderDetails] = useState<any>(null);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,6 +33,13 @@ export const useCheckout = () => {
   
   const sendOrderNotification = async () => {
     try {
+      const orderId = `ORD-${Date.now().toString().slice(-6)}`;
+      const orderDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+      
       const orderData = {
         customer: {
           firstName: formData.firstName,
@@ -44,8 +52,13 @@ export const useCheckout = () => {
         },
         items,
         subtotal,
-        recipientEmail: "awwal0421@gmail.com" // Admin email
+        recipientEmail: "awwal0421@gmail.com", // Admin email
+        orderId,
+        orderDate
       };
+      
+      // Save order details for receipt generation
+      setOrderDetails(orderData);
       
       console.log("Sending order notification with data:", orderData);
       
@@ -133,6 +146,7 @@ export const useCheckout = () => {
     isSubmitting,
     orderComplete,
     emailSentStatus,
+    orderDetails,
     handleChange,
     handleSubmit,
   };

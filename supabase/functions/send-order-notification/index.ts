@@ -32,7 +32,9 @@ interface OrderData {
   };
   items: OrderItem[];
   subtotal: number;
-  recipientEmail: string; // Add recipient email to the interface
+  recipientEmail: string;
+  orderId: string;
+  orderDate: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -84,7 +86,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
     
-    const { customer, items, subtotal, recipientEmail } = orderData;
+    const { customer, items, subtotal, recipientEmail, orderId, orderDate } = orderData;
     
     // Use the provided recipient email or fallback to awwal0421@gmail.com if not provided
     const adminEmail = recipientEmail || "awwal0421@gmail.com";
@@ -106,11 +108,17 @@ const handler = async (req: Request): Promise<Response> => {
     const adminEmailResponse = await resend.emails.send({
       from: SENDER_EMAIL,
       to: [adminEmail],
-      subject: `New Order from ${customer.firstName} ${customer.lastName}`,
+      subject: `New Order #${orderId} from ${customer.firstName} ${customer.lastName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #6b21a8; text-align: center;">The Perfect Shoppe</h1>
           <h2 style="color: #333;">New Order Received</h2>
+          
+          <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0;">Order Information</h3>
+            <p><strong>Order ID:</strong> ${orderId}</p>
+            <p><strong>Date:</strong> ${orderDate}</p>
+          </div>
           
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
             <h3 style="margin-top: 0;">Customer Information</h3>
@@ -155,7 +163,7 @@ const handler = async (req: Request): Promise<Response> => {
     const customerEmailResponse = await resend.emails.send({
       from: SENDER_EMAIL,
       to: [customer.email],
-      subject: "Your order has been received - The Perfect Shoppe",
+      subject: `Your order #${orderId} has been received - The Perfect Shoppe`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #6b21a8; text-align: center;">The Perfect Shoppe</h1>
@@ -164,6 +172,12 @@ const handler = async (req: Request): Promise<Response> => {
           <p style="margin-bottom: 20px;">Dear ${customer.firstName},</p>
           
           <p style="margin-bottom: 20px;">Thank you for shopping with us. We've received your order and are working on processing it as soon as possible.</p>
+          
+          <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0;">Order Information</h3>
+            <p><strong>Order ID:</strong> ${orderId}</p>
+            <p><strong>Date:</strong> ${orderDate}</p>
+          </div>
           
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
             <h3 style="margin-top: 0;">Order Summary</h3>
