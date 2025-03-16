@@ -14,7 +14,14 @@ const Checkout = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { formData, isSubmitting, orderComplete, handleChange, handleSubmit } = useCheckout();
+  const { 
+    formData, 
+    isSubmitting, 
+    orderComplete, 
+    emailSentStatus, 
+    handleChange, 
+    handleSubmit 
+  } = useCheckout();
   
   useEffect(() => {
     if (!isAuthenticated) {
@@ -37,7 +44,7 @@ const Checkout = () => {
   }
   
   if (orderComplete) {
-    return <OrderSuccess />;
+    return <OrderSuccess emailStatus={emailSentStatus} customerEmail={formData.email} />;
   }
   
   return (

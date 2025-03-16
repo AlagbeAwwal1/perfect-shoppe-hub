@@ -23,6 +23,7 @@ export const useCheckout = () => {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
+  const [emailSentStatus, setEmailSentStatus] = useState<'success' | 'limited' | 'failed' | null>(null);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,7 +44,7 @@ export const useCheckout = () => {
         },
         items,
         subtotal,
-        recipientEmail: "awwal0421@gmail.com" // Add the recipient email
+        recipientEmail: "awwal0421@gmail.com" // Admin email
       };
       
       console.log("Sending order notification with data:", orderData);
@@ -54,16 +55,26 @@ export const useCheckout = () => {
       
       if (error) {
         console.error("Error sending order notification:", error);
-        toast({
-          title: "Order Placed",
-          description: "Your order was placed, but we couldn't send you a confirmation email.",
-          variant: "destructive",
-        });
+        setEmailSentStatus('failed');
+        return { success: false, adminEmailSent: false, customerEmailSent: false };
       } else {
         console.log("Order notification sent successfully:", data);
+        
+        // Check if customer email was sent successfully
+        if (data.customerEmail?.error) {
+          // Customer email failed (likely due to Resend's testing restrictions)
+          setEmailSentStatus(formData.email === 'awwal0421@gmail.com' ? 'success' : 'limited');
+          return { success: true, adminEmailSent: true, customerEmailSent: false };
+        } else {
+          // Both emails sent successfully
+          setEmailSentStatus('success');
+          return { success: true, adminEmailSent: true, customerEmailSent: true };
+        }
       }
     } catch (error) {
       console.error("Exception when sending order notification:", error);
+      setEmailSentStatus('failed');
+      return { success: false, adminEmailSent: false, customerEmailSent: false };
     }
   };
   
@@ -96,16 +107,24 @@ export const useCheckout = () => {
     // Simulate order processing with a timeout
     setTimeout(async () => {
       // Send order notification to admin
-      await sendOrderNotification();
+      const notificationResult = await sendOrderNotification();
       
       setIsSubmitting(false);
       setOrderComplete(true);
       clearCart();
       
-      toast({
-        title: "Order placed successfully!",
-        description: "Thank you for your purchase.",
-      });
+      if (notificationResult.success) {
+        toast({
+          title: "Order placed successfully!",
+          description: "Thank you for your purchase.",
+        });
+      } else {
+        toast({
+          title: "Order placed",
+          description: "Your order was placed, but we encountered an issue sending notification emails.",
+          variant: "destructive",
+        });
+      }
     }, 2000);
   };
   
@@ -113,6 +132,7 @@ export const useCheckout = () => {
     formData,
     isSubmitting,
     orderComplete,
+    emailSentStatus,
     handleChange,
     handleSubmit,
   };
