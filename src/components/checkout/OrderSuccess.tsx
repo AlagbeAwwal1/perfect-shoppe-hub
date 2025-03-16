@@ -114,10 +114,6 @@ const OrderSuccess = ({ emailStatus, customerEmail, orderDetails }: OrderSuccess
             <Alert className="mb-6" variant="default">
               <Info className="h-4 w-4" />
               <AlertTitle>Email Delivery Notice</AlertTitle>
-              <AlertDescription>
-                Your order has been received, but our email system is currently in test mode.
-                Please download your receipt using the button below.
-              </AlertDescription>
             </Alert>
           )}
           
