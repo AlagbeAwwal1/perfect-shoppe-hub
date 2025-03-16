@@ -80,7 +80,7 @@ const HeroContent: React.FC = () => {
           
           <Link to="/contact">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button variant="outline" className="border-white text-white hover:bg-white/10 transform transition-all duration-300 hover-glow">
+              <Button variant="outline" className="border-white text-brand-purple hover:bg-white/10 hover:text-white transform transition-all duration-300 hover-glow">
                 Contact Us
                 <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
