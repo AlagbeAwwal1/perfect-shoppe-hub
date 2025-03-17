@@ -4,24 +4,17 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById } from '@/data/products';
 import { getProductByIdFromDB } from '@/data/supabaseProducts';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Minus, Plus } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious
-} from "@/components/ui/carousel";
+import ProductImageCarousel from '@/components/product/ProductImageCarousel';
+import ProductInfo from '@/components/product/ProductInfo';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [imageError, setImageError] = useState(false);
   
   const { data: product, isLoading, error } = useQuery({
     queryKey: ['product', id],
@@ -49,12 +42,6 @@ const ProductDetail = () => {
 
   const incrementQuantity = () => setQuantity(prev => prev + 1);
   const decrementQuantity = () => setQuantity(prev => prev > 1 ? prev - 1 : 1);
-  
-  // Handle thumbnail click
-  const selectImage = (index: number) => {
-    setCurrentImageIndex(index);
-    setImageError(false);
-  };
 
   if (isLoading) {
     return (
@@ -95,118 +82,18 @@ const ProductDetail = () => {
         </button>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div className="space-y-4">
-            {/* Carousel implementation */}
-            <Carousel className="w-full max-w-lg mx-auto">
-              <CarouselContent>
-                {productImages.map((image, index) => (
-                  <CarouselItem key={index}>
-                    <div className="bg-gray-100 rounded-lg overflow-hidden h-80 md:h-[500px] flex items-center justify-center p-2">
-                      <img 
-                        src={image} 
-                        alt={`${product.name} - view ${index + 1}`}
-                        className="w-full h-full object-contain object-center"
-                        onError={(e) => {
-                          console.error(`Failed to load image: ${image}`);
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/placeholder.svg';
-                        }}
-                      />
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              {productImages.length > 1 && (
-                <>
-                  <CarouselPrevious className="left-2 md:-left-12" />
-                  <CarouselNext className="right-2 md:-right-12" />
-                </>
-              )}
-            </Carousel>
-            
-            {/* Thumbnails for quick navigation */}
-            {productImages.length > 1 && (
-              <div className="flex overflow-x-auto space-x-2 pb-2 mt-4">
-                {productImages.map((img, index) => (
-                  <button
-                    key={index}
-                    className={`flex-shrink-0 border-2 rounded-md overflow-hidden h-20 w-20 ${
-                      index === currentImageIndex ? 'border-brand-purple' : 'border-gray-200'
-                    }`}
-                    onClick={() => selectImage(index)}
-                  >
-                    <img
-                      src={img}
-                      alt={`${product.name} - thumbnail ${index + 1}`}
-                      className="h-full w-full object-cover object-center"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/placeholder.svg';
-                      }}
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <ProductImageCarousel 
+            images={productImages}
+            productName={product.name}
+          />
           
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">{product.name}</h1>
-            <div className="mb-6">
-              <p className="text-2xl font-bold text-brand-purple">₦{product.price.toLocaleString()}</p>
-            </div>
-            
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold mb-2">Description</h3>
-              <p className="text-gray-600">{product.description}</p>
-            </div>
-            
-            <div className="mb-6">
-              <div className="flex items-center mb-4">
-                <span className="mr-4">Quantity:</span>
-                <div className="flex items-center border rounded-md">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-10 w-10 rounded-none"
-                    onClick={decrementQuantity}
-                    disabled={quantity <= 1}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="px-4">{quantity}</span>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-10 w-10 rounded-none"
-                    onClick={incrementQuantity}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <Button 
-                className="w-full bg-brand-purple text-white hover:bg-brand-purple/90"
-                onClick={handleAddToCart}
-              >
-                Add to Cart
-              </Button>
-              
-              <Button 
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  handleAddToCart();
-                  navigate('/cart');
-                }}
-              >
-                Buy Now
-              </Button>
-            </div>
-          </div>
+          <ProductInfo 
+            product={product}
+            quantity={quantity}
+            incrementQuantity={incrementQuantity}
+            decrementQuantity={decrementQuantity}
+            onAddToCart={handleAddToCart}
+          />
         </div>
       </div>
     </div>
