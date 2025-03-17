@@ -1,3 +1,4 @@
+
 export type ProductCategory = 'scarf' | 'khimar' | 'accessory' | 'prayer' | 'other';
 
 export interface Product {
@@ -27,7 +28,8 @@ export const products: Product[] = [
     price: 4500,
     description: 'High-quality UAE jersey scarf. Comfortable and stylish for daily use.',
     image: '/placeholder.svg',
-    category: 'scarf'
+    category: 'scarf',
+    featured: false
   },
   {
     id: '3',
@@ -44,7 +46,8 @@ export const products: Product[] = [
     price: 10000,
     description: 'Comfortable hoodie khimar made with premium fabric. Practical and modest design.',
     image: '/placeholder.svg',
-    category: 'khimar'
+    category: 'khimar',
+    featured: false
   },
   {
     id: '5',
@@ -61,7 +64,8 @@ export const products: Product[] = [
     price: 10000,
     description: 'Beautiful lace khimar with intricate details. Perfect for special occasions.',
     image: '/placeholder.svg',
-    category: 'khimar'
+    category: 'khimar',
+    featured: false
   },
   {
     id: '7',
@@ -69,7 +73,8 @@ export const products: Product[] = [
     price: 3500,
     description: 'Stylish ombre chiffon scarf with gradual color transition. Light and flowy.',
     image: '/placeholder.svg',
-    category: 'scarf'
+    category: 'scarf',
+    featured: false
   },
   {
     id: '8',
@@ -77,7 +82,8 @@ export const products: Product[] = [
     price: 6000,
     description: 'Digital LED counter for tracking tasbeeh counts. Easy to use with rechargeable battery.',
     image: '/placeholder.svg',
-    category: 'accessory'
+    category: 'accessory',
+    featured: false
   },
   {
     id: '9',
@@ -85,7 +91,8 @@ export const products: Product[] = [
     price: 1000,
     description: 'Simple manual counter for tasbeeh. Portable and durable design.',
     image: '/placeholder.svg',
-    category: 'accessory'
+    category: 'accessory',
+    featured: false
   },
   {
     id: '10',
@@ -102,7 +109,8 @@ export const products: Product[] = [
     price: 6500,
     description: 'Beautiful Quran with clear print and quality binding. Available in different sizes.',
     image: '/placeholder.svg',
-    category: 'prayer'
+    category: 'prayer',
+    featured: false
   },
   {
     id: '12',
@@ -110,7 +118,8 @@ export const products: Product[] = [
     price: 1000,
     description: 'Comfortable inner cap to wear under hijab. Soft fabric that stays in place.',
     image: '/placeholder.svg',
-    category: 'accessory'
+    category: 'accessory',
+    featured: false
   }
 ];
 
