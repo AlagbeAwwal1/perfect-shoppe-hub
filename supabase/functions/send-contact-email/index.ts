@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 // Define the recipient email - this can be easily changed here
-const RECIPIENT_EMAIL = "youremail@example.com";
+const RECIPIENT_EMAIL = "faosiatolamide2017@gmail.com";
 // Define the sender email - this can be easily changed here
 const SENDER_EMAIL = "Contact Form <onboarding@resend.dev>";
 
