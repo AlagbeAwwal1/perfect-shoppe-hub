@@ -52,7 +52,7 @@ export const useCheckout = () => {
         },
         items,
         subtotal,
-        recipientEmail: "awwal0421@gmail.com", // Admin email
+        recipientEmail: "youremail@example.com", // Admin email - updated here
         orderId,
         orderDate
       };
@@ -76,7 +76,7 @@ export const useCheckout = () => {
         // Check if customer email was sent successfully
         if (data.customerEmail?.error) {
           // Customer email failed (likely due to Resend's testing restrictions)
-          setEmailSentStatus(formData.email === 'awwal0421@gmail.com' ? 'success' : 'limited');
+          setEmailSentStatus(formData.email === 'youremail@example.com' ? 'success' : 'limited');
           return { success: true, adminEmailSent: true, customerEmailSent: false };
         } else {
           // Both emails sent successfully
