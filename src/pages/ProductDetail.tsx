@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById } from '@/data/products';
 import { getProductByIdFromDB } from '@/data/supabaseProducts';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, Minus, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useQuery } from '@tanstack/react-query';
 
@@ -13,6 +13,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   
   const { data: product, isLoading, error } = useQuery({
@@ -41,6 +42,29 @@ const ProductDetail = () => {
 
   const incrementQuantity = () => setQuantity(prev => prev + 1);
   const decrementQuantity = () => setQuantity(prev => prev > 1 ? prev - 1 : 1);
+  
+  const nextImage = () => {
+    if (product?.images && product.images.length > 0) {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === product.images!.length - 1 ? 0 : prevIndex + 1
+      );
+      setImageError(false);
+    }
+  };
+  
+  const prevImage = () => {
+    if (product?.images && product.images.length > 0) {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === 0 ? product.images!.length - 1 : prevIndex - 1
+      );
+      setImageError(false);
+    }
+  };
+  
+  const selectImage = (index: number) => {
+    setCurrentImageIndex(index);
+    setImageError(false);
+  };
 
   if (isLoading) {
     return (
@@ -63,6 +87,11 @@ const ProductDetail = () => {
       </div>
     );
   }
+  
+  // Get the current image to display
+  const currentImage = product.images && product.images.length > 0 
+    ? product.images[currentImageIndex] 
+    : product.image;
 
   return (
     <div className="py-12">
@@ -76,21 +105,68 @@ const ProductDetail = () => {
         </button>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div className="bg-gray-100 rounded-lg overflow-hidden h-96 md:h-[500px]">
-            {imageError ? (
-              <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                <span className="text-gray-500">Image not available</span>
+          <div className="space-y-4">
+            <div className="relative bg-gray-100 rounded-lg overflow-hidden h-96 md:h-[500px]">
+              {imageError ? (
+                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                  <span className="text-gray-500">Image not available</span>
+                </div>
+              ) : (
+                <img 
+                  src={currentImage} 
+                  alt={product.name} 
+                  className="w-full h-full object-contain object-center"
+                  onError={(e) => {
+                    console.error(`Failed to load image: ${currentImage}`);
+                    setImageError(true);
+                  }}
+                />
+              )}
+              
+              {product.images && product.images.length > 1 && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-md"
+                    onClick={prevImage}
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-md"
+                    onClick={nextImage}
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </>
+              )}
+            </div>
+            
+            {product.images && product.images.length > 1 && (
+              <div className="flex overflow-x-auto space-x-2 pb-2">
+                {product.images.map((img, index) => (
+                  <button
+                    key={index}
+                    className={`flex-shrink-0 border-2 rounded-md overflow-hidden h-20 w-20 ${
+                      index === currentImageIndex ? 'border-brand-purple' : 'border-gray-200'
+                    }`}
+                    onClick={() => selectImage(index)}
+                  >
+                    <img
+                      src={img}
+                      alt={`${product.name} - view ${index + 1}`}
+                      className="h-full w-full object-cover object-center"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/placeholder.svg';
+                      }}
+                    />
+                  </button>
+                ))}
               </div>
-            ) : (
-              <img 
-                src={product.image} 
-                alt={product.name} 
-                className="w-full h-full object-cover object-center"
-                onError={(e) => {
-                  console.error(`Failed to load image: ${product.image}`);
-                  setImageError(true);
-                }}
-              />
             )}
           </div>
           

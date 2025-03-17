@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { getFeaturedProducts } from '@/data/products';
 import { getFeaturedProductsFromDB } from '@/data/supabaseProducts';
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from '@tanstack/react-query';
 
 const FeaturedProducts: React.FC = () => {
-  const { data: featuredProducts, isLoading, error } = useQuery({
+  const { data: featuredProducts, isLoading, error, refetch } = useQuery({
     queryKey: ['featuredProducts'],
     queryFn: async () => {
       try {
@@ -19,7 +19,8 @@ const FeaturedProducts: React.FC = () => {
         return getFeaturedProducts();
       }
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 0, // Set to 0 to always get fresh data
+    refetchOnWindowFocus: true, // Refetch when window gets focus
   });
 
   return (
@@ -38,6 +39,9 @@ const FeaturedProducts: React.FC = () => {
         ) : error ? (
           <div className="text-center py-12">
             <p className="text-gray-500">Failed to load featured products. Please try again later.</p>
+            <Button onClick={() => refetch()} variant="outline" className="mt-4">
+              Retry
+            </Button>
           </div>
         ) : featuredProducts && featuredProducts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

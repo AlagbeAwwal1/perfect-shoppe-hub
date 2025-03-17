@@ -118,7 +118,7 @@ const Footer: React.FC = () => {
                     <MapPin size={18} className="text-white" />
                   </div>
                   <div className="text-left">
-                    <p className="text-gray-200 text-sm">24, Babatunde Fadiya St., Akute, Ogun State</p>
+                    <p className="text-gray-200 text-sm">Akute, Ogun State</p>
                   </div>
                 </div>
                 

@@ -1,14 +1,15 @@
-export type Product = {
+export type ProductCategory = 'scarf' | 'khimar' | 'accessory' | 'prayer' | 'other';
+
+export interface Product {
   id: string;
   name: string;
   price: number;
   description: string;
+  category: ProductCategory;
   image: string;
-  category: 'scarf' | 'khimar' | 'accessory' | 'prayer' | 'other';
-  featured?: boolean;
-  created_at?: string;
-  updated_at?: string;
-};
+  featured: boolean;
+  images?: string[]; // Array of image URLs
+}
 
 export const products: Product[] = [
   {
