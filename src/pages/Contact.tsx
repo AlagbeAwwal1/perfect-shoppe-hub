@@ -42,7 +42,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="text-gray-800 font-medium">Call Us</p>
-                    <p className="text-gray-600">+234 123 456 7890</p>
+                    <p className="text-gray-600">+234 903 563 6061</p>
                   </div>
                 </div>
                 
@@ -52,7 +52,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="text-gray-800 font-medium">Email Us</p>
-                    <p className="text-gray-600">info@theperfectshoppe.com</p>
+                    <p className="text-gray-600">faosiatolamide2017@gmail.com</p>
                   </div>
                 </div>
                 
@@ -62,7 +62,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="text-gray-800 font-medium">Visit Us</p>
-                    <p className="text-gray-600">123 Fashion Street, Lagos, Nigeria</p>
+                    <p className="text-gray-600">Akute,Ogun State</p>
                   </div>
                 </div>
               </div>

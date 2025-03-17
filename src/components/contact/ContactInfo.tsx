@@ -57,7 +57,7 @@ const ContactInfo = () => {
           </motion.div>
           <div className="text-center">
             <h3 className="font-semibold text-gray-800 mb-1">Address</h3>
-            <p className="text-gray-600">24, Babatunde Fadiya St., Akute, Ogun State</p>
+            <p className="text-gray-600">Akute, Ogun State</p>
           </div>
         </motion.div>
         

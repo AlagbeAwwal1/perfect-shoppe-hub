@@ -24,7 +24,24 @@ export const useCheckout = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [emailSentStatus, setEmailSentStatus] = useState<'success' | 'limited' | 'failed' | null>(null);
-  const [orderDetails, setOrderDetails] = useState<any>(null);
+  interface OrderDetails {
+    customer: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      address: string;
+      city: string;
+      state: string;
+      phoneNumber: string;
+    };
+    items: typeof items;
+    subtotal: typeof subtotal;
+    recipientEmail: string;
+    orderId: string;
+    orderDate: string;
+  }
+
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
