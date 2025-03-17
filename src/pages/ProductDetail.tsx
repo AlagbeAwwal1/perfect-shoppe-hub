@@ -4,9 +4,16 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById } from '@/data/products';
 import { getProductByIdFromDB } from '@/data/supabaseProducts';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Minus, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Minus, Plus } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useQuery } from '@tanstack/react-query';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious
+} from "@/components/ui/carousel";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,24 +50,7 @@ const ProductDetail = () => {
   const incrementQuantity = () => setQuantity(prev => prev + 1);
   const decrementQuantity = () => setQuantity(prev => prev > 1 ? prev - 1 : 1);
   
-  const nextImage = () => {
-    if (product?.images && product.images.length > 0) {
-      setCurrentImageIndex((prevIndex) => 
-        prevIndex === product.images!.length - 1 ? 0 : prevIndex + 1
-      );
-      setImageError(false);
-    }
-  };
-  
-  const prevImage = () => {
-    if (product?.images && product.images.length > 0) {
-      setCurrentImageIndex((prevIndex) => 
-        prevIndex === 0 ? product.images!.length - 1 : prevIndex - 1
-      );
-      setImageError(false);
-    }
-  };
-  
+  // Handle thumbnail click
   const selectImage = (index: number) => {
     setCurrentImageIndex(index);
     setImageError(false);
@@ -88,10 +78,10 @@ const ProductDetail = () => {
     );
   }
   
-  // Get the current image to display
-  const currentImage = product.images && product.images.length > 0 
-    ? product.images[currentImageIndex] 
-    : product.image;
+  // Create an array of images for the carousel
+  const productImages = product.images && product.images.length > 0 
+    ? product.images 
+    : [product.image];
 
   return (
     <div className="py-12">
@@ -106,48 +96,38 @@ const ProductDetail = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="space-y-4">
-            <div className="relative bg-gray-100 rounded-lg overflow-hidden h-96 md:h-[500px]">
-              {imageError ? (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                  <span className="text-gray-500">Image not available</span>
-                </div>
-              ) : (
-                <img 
-                  src={currentImage} 
-                  alt={product.name} 
-                  className="w-full h-full object-contain object-center"
-                  onError={(e) => {
-                    console.error(`Failed to load image: ${currentImage}`);
-                    setImageError(true);
-                  }}
-                />
-              )}
-              
-              {product.images && product.images.length > 1 && (
+            {/* Carousel implementation */}
+            <Carousel className="w-full max-w-lg mx-auto">
+              <CarouselContent>
+                {productImages.map((image, index) => (
+                  <CarouselItem key={index}>
+                    <div className="bg-gray-100 rounded-lg overflow-hidden h-80 md:h-[500px] flex items-center justify-center p-2">
+                      <img 
+                        src={image} 
+                        alt={`${product.name} - view ${index + 1}`}
+                        className="w-full h-full object-contain object-center"
+                        onError={(e) => {
+                          console.error(`Failed to load image: ${image}`);
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder.svg';
+                        }}
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              {productImages.length > 1 && (
                 <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-md"
-                    onClick={prevImage}
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-md"
-                    onClick={nextImage}
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </Button>
+                  <CarouselPrevious className="left-2 md:-left-12" />
+                  <CarouselNext className="right-2 md:-right-12" />
                 </>
               )}
-            </div>
+            </Carousel>
             
-            {product.images && product.images.length > 1 && (
-              <div className="flex overflow-x-auto space-x-2 pb-2">
-                {product.images.map((img, index) => (
+            {/* Thumbnails for quick navigation */}
+            {productImages.length > 1 && (
+              <div className="flex overflow-x-auto space-x-2 pb-2 mt-4">
+                {productImages.map((img, index) => (
                   <button
                     key={index}
                     className={`flex-shrink-0 border-2 rounded-md overflow-hidden h-20 w-20 ${
@@ -157,7 +137,7 @@ const ProductDetail = () => {
                   >
                     <img
                       src={img}
-                      alt={`${product.name} - view ${index + 1}`}
+                      alt={`${product.name} - thumbnail ${index + 1}`}
                       className="h-full w-full object-cover object-center"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
