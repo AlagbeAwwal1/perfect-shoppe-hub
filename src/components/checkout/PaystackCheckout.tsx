@@ -35,7 +35,7 @@ const PaystackCheckout: React.FC<PaystackCheckoutProps> = ({
     }
     
     const handler = window.PaystackPop.setup({
-      key: 'pk_test_your_paystack_public_key', // Replace with your Paystack public key
+      key: 'pk_test_70b3218b9922660a6f49ee5e19c350731fe844d8', // Updated with the provided Paystack test key
       email,
       amount: amount * 100, // Paystack expects amount in kobo (multiply by 100)
       currency: 'NGN',
