@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Carousel,
   CarouselContent,
@@ -7,8 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious
 } from "@/components/ui/carousel";
-import { useEffect } from "react";
-import { useCarousel } from "embla-carousel-react";
+import useEmblaCarousel from "embla-carousel-react"; // Import useEmblaCarousel directly instead of useCarousel
 
 interface ProductImageCarouselProps {
   images: string[];
@@ -28,7 +27,7 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
     : ['/placeholder.svg'];
     
   // Use the Carousel API
-  const [carouselApi, setCarouselApi] = React.useState<ReturnType<typeof useCarousel>["embla"]>();
+  const [carouselApi, setCarouselApi] = React.useState<ReturnType<typeof useEmblaCarousel>[1]>();
   
   // Handle thumbnail click - select image and scroll carousel to that index
   const selectImage = (index: number) => {
