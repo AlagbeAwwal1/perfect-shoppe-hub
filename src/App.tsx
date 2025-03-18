@@ -23,6 +23,10 @@ import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/admin/Dashboard";
 import ProductsManagement from "./pages/admin/ProductsManagement";
 import ProductForm from "./pages/admin/ProductForm";
+import OrdersManagement from "./pages/admin/OrdersManagement";
+import OrderDetails from "./pages/admin/OrderDetails";
+import UsersManagement from "./pages/admin/UsersManagement";
+import StoreSettings from "./pages/admin/StoreSettings";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -56,6 +60,10 @@ const App = () => (
                   <Route path="/admin/products" element={<ProductsManagement />} />
                   <Route path="/admin/products/new" element={<ProductForm />} />
                   <Route path="/admin/products/edit/:id" element={<ProductForm />} />
+                  <Route path="/admin/orders" element={<OrdersManagement />} />
+                  <Route path="/admin/orders/:id" element={<OrderDetails />} />
+                  <Route path="/admin/users" element={<UsersManagement />} />
+                  <Route path="/admin/settings" element={<StoreSettings />} />
                   
                   <Route path="*" element={<NotFound />} />
                 </Routes>
