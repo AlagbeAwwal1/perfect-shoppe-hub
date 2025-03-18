@@ -7,12 +7,6 @@ export async function getOrdersFromDB(): Promise<Order[]> {
     .from('orders')
     .select(`
       *,
-      customer:user_id(
-        id, 
-        first_name, 
-        last_name, 
-        email
-      ),
       items:order_items(
         id, 
         product_id,
@@ -32,10 +26,10 @@ export async function getOrdersFromDB(): Promise<Order[]> {
   const orders = data.map((order: any) => ({
     id: order.id,
     customer: {
-      id: order.customer?.id,
-      firstName: order.customer?.first_name || '',
-      lastName: order.customer?.last_name || '',
-      email: order.customer?.email || '',
+      id: order.user_id || '',
+      firstName: '', // Will be populated from profiles table separately
+      lastName: '',  // Will be populated from profiles table separately
+      email: '',     // Will be populated from profiles table separately
       phoneNumber: order.phone_number || '',
       address: order.address || '',
       city: order.city || '',
@@ -56,6 +50,23 @@ export async function getOrdersFromDB(): Promise<Order[]> {
     reference: order.reference
   }));
 
+  // Now fetch customer information separately for each order
+  for (const order of orders) {
+    if (order.customer.id) {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, email')
+        .eq('id', order.customer.id)
+        .maybeSingle();
+
+      if (!profileError && profileData) {
+        order.customer.firstName = profileData.first_name || '';
+        order.customer.lastName = profileData.last_name || '';
+        order.customer.email = profileData.email || '';
+      }
+    }
+  }
+
   return orders;
 }
 
@@ -64,12 +75,6 @@ export async function getOrderByIdFromDB(orderId: string): Promise<Order | null>
     .from('orders')
     .select(`
       *,
-      customer:user_id(
-        id, 
-        first_name, 
-        last_name, 
-        email
-      ),
       items:order_items(
         id, 
         product_id,
@@ -88,14 +93,14 @@ export async function getOrderByIdFromDB(orderId: string): Promise<Order | null>
 
   if (!data) return null;
 
-  // Transform the data to match our Order type
+  // Create order with basic information
   const order: Order = {
     id: data.id,
     customer: {
-      id: data.customer?.id,
-      firstName: data.customer?.first_name || '',
-      lastName: data.customer?.last_name || '',
-      email: data.customer?.email || '',
+      id: data.user_id || '',
+      firstName: '',
+      lastName: '',
+      email: '',
       phoneNumber: data.phone_number || '',
       address: data.address || '',
       city: data.city || '',
@@ -115,6 +120,21 @@ export async function getOrderByIdFromDB(orderId: string): Promise<Order | null>
     updated_at: data.updated_at,
     reference: data.reference
   };
+
+  // Fetch customer information if user_id exists
+  if (order.customer.id) {
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, first_name, last_name, email')
+      .eq('id', order.customer.id)
+      .maybeSingle();
+
+    if (!profileError && profileData) {
+      order.customer.firstName = profileData.first_name || '';
+      order.customer.lastName = profileData.last_name || '';
+      order.customer.email = profileData.email || '';
+    }
+  }
 
   return order;
 }

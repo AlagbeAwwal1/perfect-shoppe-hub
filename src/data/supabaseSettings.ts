@@ -22,8 +22,12 @@ export async function getStoreSettingsFromDB(): Promise<StoreSettings | null> {
     currency: data.currency,
     taxRate: data.tax_rate,
     paymentMethods: {
-      paystack: data.payment_methods?.paystack || false,
-      bankTransfer: data.payment_methods?.bank_transfer || false,
+      paystack: data.payment_methods ? 
+        (typeof data.payment_methods === 'object' && 'paystack' in data.payment_methods ? 
+          !!data.payment_methods.paystack : false) : false,
+      bankTransfer: data.payment_methods ? 
+        (typeof data.payment_methods === 'object' && 'bank_transfer' in data.payment_methods ? 
+          !!data.payment_methods.bank_transfer : false) : false,
     },
     contactEmail: data.contact_email || '',
     contactPhone: data.contact_phone || '',
