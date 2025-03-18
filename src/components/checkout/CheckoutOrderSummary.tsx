@@ -1,9 +1,12 @@
 
 import React from 'react';
 import { useCart } from '@/contexts/CartContext';
+import { useCheckout } from '@/hooks/useCheckout';
 
 const CheckoutOrderSummary = () => {
   const { items, subtotal } = useCart();
+  const { storeSettings } = useCheckout();
+  const currency = storeSettings?.currency || '₦';
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
@@ -16,7 +19,7 @@ const CheckoutOrderSummary = () => {
               <span className="font-medium">{item.product.name}</span>
               <span className="text-gray-500 ml-2">x{item.quantity}</span>
             </div>
-            <span>₦{(item.product.price * item.quantity).toLocaleString()}</span>
+            <span>{currency}{(item.product.price * item.quantity).toLocaleString()}</span>
           </li>
         ))}
       </ul>
@@ -24,18 +27,26 @@ const CheckoutOrderSummary = () => {
       <div className="border-t border-gray-200 py-4 mt-4">
         <div className="flex justify-between mb-2">
           <p>Subtotal</p>
-          <p>₦{subtotal.toLocaleString()}</p>
+          <p>{currency}{subtotal.toLocaleString()}</p>
         </div>
         <div className="flex justify-between mb-2">
           <p>Shipping</p>
           <p>Free</p>
         </div>
+        {storeSettings?.taxRate > 0 && (
+          <div className="flex justify-between mb-2">
+            <p>Tax ({storeSettings.taxRate}%)</p>
+            <p>{currency}{((subtotal * storeSettings.taxRate) / 100).toLocaleString()}</p>
+          </div>
+        )}
       </div>
       
       <div className="border-t border-gray-200 py-4">
         <div className="flex justify-between text-lg font-medium">
           <p>Total</p>
-          <p>₦{subtotal.toLocaleString()}</p>
+          <p>{currency}{storeSettings?.taxRate ? 
+              (subtotal + (subtotal * storeSettings.taxRate / 100)).toLocaleString() : 
+              subtotal.toLocaleString()}</p>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import PaystackCheckout from './PaystackCheckout';
+import { StoreSettings } from '@/types/settings';
 
 interface ShippingFormProps {
   formData: {
@@ -23,6 +24,7 @@ interface ShippingFormProps {
   onPaymentSuccess?: (reference: string) => void;
   onPaymentClose?: () => void;
   subtotal?: number;
+  settings?: StoreSettings | null;
 }
 
 const ShippingForm = ({ 
@@ -33,8 +35,12 @@ const ShippingForm = ({
   paymentInitiated = false,
   onPaymentSuccess = () => {},
   onPaymentClose = () => {},
-  subtotal = 0
+  subtotal = 0,
+  settings
 }: ShippingFormProps) => {
+  const currency = settings?.currency || '₦';
+  const showPaystack = settings?.paymentMethods?.paystack !== false;
+  
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
       <h2 className="text-xl font-medium text-gray-900 mb-6">Shipping Information</h2>
@@ -173,18 +179,29 @@ const ShippingForm = ({
           <div className="border-t pt-4">
             <div className="mb-4">
               <h3 className="text-lg font-medium">Order Summary</h3>
-              <p className="text-xl font-bold text-brand-purple mt-2">Total: ₦{subtotal.toLocaleString()}</p>
+              <p className="text-xl font-bold text-brand-purple mt-2">Total: {currency}{subtotal.toLocaleString()}</p>
             </div>
             
-            <PaystackCheckout
-              email={formData.email}
-              amount={subtotal}
-              name={`${formData.firstName} ${formData.lastName}`}
-              phone={formData.phoneNumber}
-              onSuccess={onPaymentSuccess}
-              onClose={onPaymentClose}
-              disabled={isSubmitting}
-            />
+            {showPaystack ? (
+              <PaystackCheckout
+                email={formData.email}
+                amount={subtotal}
+                name={`${formData.firstName} ${formData.lastName}`}
+                phone={formData.phoneNumber}
+                onSuccess={onPaymentSuccess}
+                onClose={onPaymentClose}
+                disabled={isSubmitting}
+              />
+            ) : (
+              <Button
+                type="button" 
+                className="w-full md:w-auto bg-brand-purple text-white hover:bg-brand-purple/90"
+                onClick={() => onPaymentSuccess('manual_payment')}
+                disabled={isSubmitting}
+              >
+                Complete Order
+              </Button>
+            )}
           </div>
         )}
       </form>

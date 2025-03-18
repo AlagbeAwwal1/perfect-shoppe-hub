@@ -21,6 +21,7 @@ const Checkout = () => {
     emailSentStatus, 
     orderDetails,
     paymentInitiated,
+    storeSettings,
     handleChange, 
     handleSubmit,
     handlePaymentSuccess,
@@ -94,6 +95,7 @@ const Checkout = () => {
               onPaymentSuccess={handlePaymentSuccess}
               onPaymentClose={handlePaymentClose}
               subtotal={subtotal}
+              settings={storeSettings}
             />
           </div>
           

@@ -4,11 +4,21 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { getStoreSettingsFromDB } from '@/data/supabaseSettings';
+import { useQuery } from '@tanstack/react-query';
 
 export const useCheckout = () => {
   const { user } = useAuth();
   const { items, clearCart, subtotal } = useCart();
   const { toast } = useToast();
+  
+  // Fetch store settings
+  const { data: storeSettings } = useQuery({
+    queryKey: ['storeSettings'],
+    queryFn: async () => {
+      return await getStoreSettingsFromDB();
+    }
+  });
   
   const [formData, setFormData] = useState({
     firstName: user?.name?.split(' ')[0] || '',
@@ -51,9 +61,53 @@ export const useCheckout = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
+  const createOrderInDatabase = async (paymentReference?: string) => {
+    try {
+      // Create order record
+      const { data: orderData, error: orderError } = await supabase.from('orders').insert({
+        user_id: user?.id,
+        total: subtotal,
+        status: 'pending',
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        phone_number: formData.phoneNumber,
+        reference: paymentReference
+      }).select('id').single();
+      
+      if (orderError) {
+        console.error("Error creating order:", orderError);
+        throw orderError;
+      }
+      
+      // Insert order items
+      const orderItems = items.map(item => ({
+        order_id: orderData.id,
+        product_id: item.product.id,
+        product_name: item.product.name,
+        product_price: item.product.price,
+        quantity: item.quantity
+      }));
+      
+      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
+      
+      if (itemsError) {
+        console.error("Error creating order items:", itemsError);
+        throw itemsError;
+      }
+      
+      return orderData.id;
+    } catch (error) {
+      console.error("Error creating order in database:", error);
+      throw error;
+    }
+  };
+  
   const sendOrderNotification = async (paymentReference?: string) => {
     try {
-      const orderId = `ORD-${Date.now().toString().slice(-6)}`;
+      // Create order in database and get order ID
+      const orderId = await createOrderInDatabase(paymentReference);
+      
       const orderDate = new Date().toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -72,7 +126,7 @@ export const useCheckout = () => {
         },
         items,
         subtotal,
-        recipientEmail: "faosiatolamide2017@gmail.com", // Admin email
+        recipientEmail: storeSettings?.contactEmail || "faosiatolamide2017@gmail.com", // Use store email or fallback
         orderId,
         orderDate,
         paymentReference
@@ -97,7 +151,7 @@ export const useCheckout = () => {
         // Check if customer email was sent successfully
         if (data.customerEmail?.error) {
           // Customer email failed (likely due to Resend's testing restrictions)
-          setEmailSentStatus(formData.email === 'faosiatolamide2017@gmail.com' ? 'success' : 'limited');
+          setEmailSentStatus(formData.email === storeSettings?.contactEmail ? 'success' : 'limited');
           return { success: true, adminEmailSent: true, customerEmailSent: false };
         } else {
           // Both emails sent successfully
@@ -182,6 +236,7 @@ export const useCheckout = () => {
     emailSentStatus,
     orderDetails,
     paymentInitiated,
+    storeSettings,
     handleChange,
     handleSubmit,
     handlePaymentSuccess,
