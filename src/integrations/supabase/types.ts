@@ -9,6 +9,93 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      order_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          order_id: string | null
+          product_id: string | null
+          product_name: string
+          product_price: number
+          quantity: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          product_id?: string | null
+          product_name: string
+          product_price: number
+          quantity: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          product_id?: string | null
+          product_name?: string
+          product_price?: number
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string | null
+          id: string
+          phone_number: string | null
+          reference: string | null
+          state: string | null
+          status: string
+          total: number
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          phone_number?: string | null
+          reference?: string | null
+          state?: string | null
+          status?: string
+          total: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          phone_number?: string | null
+          reference?: string | null
+          state?: string | null
+          status?: string
+          total?: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       product_images: {
         Row: {
           created_at: string
@@ -83,21 +170,66 @@ export type Database = {
           email: string | null
           first_name: string | null
           id: string
+          is_active: boolean
           last_name: string | null
+          role: string
         }
         Insert: {
           created_at?: string | null
           email?: string | null
           first_name?: string | null
           id: string
+          is_active?: boolean
           last_name?: string | null
+          role?: string
         }
         Update: {
           created_at?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
+          is_active?: boolean
           last_name?: string | null
+          role?: string
+        }
+        Relationships: []
+      }
+      store_settings: {
+        Row: {
+          address: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          currency: string
+          id: string
+          payment_methods: Json | null
+          store_name: string
+          tax_rate: number
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          currency?: string
+          id?: string
+          payment_methods?: Json | null
+          store_name?: string
+          tax_rate?: number
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          currency?: string
+          id?: string
+          payment_methods?: Json | null
+          store_name?: string
+          tax_rate?: number
+          updated_at?: string | null
         }
         Relationships: []
       }

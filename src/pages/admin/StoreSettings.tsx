@@ -1,288 +1,261 @@
 
-import React from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Save } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { getStoreSettingsFromDB, updateStoreSettings } from '@/data/supabaseSettings';
-import { StoreSettings } from '@/types/settings';
+import { StoreSettings as StoreSettingsType } from '@/types/settings';
 import { useAuth } from '@/contexts/AuthContext';
-
-const formSchema = z.object({
-  storeName: z.string().min(1, 'Store name is required'),
-  currency: z.string().min(1, 'Currency is required'),
-  taxRate: z.coerce.number().min(0, 'Tax rate must be positive'),
-  paymentMethods: z.object({
-    paystack: z.boolean().default(false),
-    bankTransfer: z.boolean().default(false),
-  }),
-  contactEmail: z.string().email('Invalid email address'),
-  contactPhone: z.string().min(1, 'Phone number is required'),
-  address: z.string().min(1, 'Address is required'),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { Loader2 } from 'lucide-react';
 
 const StoreSettings = () => {
-  const { isAdmin } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [settings, setSettings] = useState<StoreSettingsType | null>(null);
 
-  const { data: settings, isLoading } = useQuery({
-    queryKey: ['store-settings'],
-    queryFn: getStoreSettingsFromDB,
-    enabled: isAdmin,
-  });
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const data = await getStoreSettingsFromDB();
+        setSettings(data);
+      } catch (error) {
+        console.error('Error fetching store settings:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load store settings',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      storeName: '',
-      currency: 'NGN',
-      taxRate: 0,
-      paymentMethods: {
-        paystack: true,
-        bankTransfer: false,
-      },
-      contactEmail: '',
-      contactPhone: '',
-      address: '',
-    },
-  });
+    fetchSettings();
+  }, [toast]);
 
-  React.useEffect(() => {
-    if (settings) {
-      form.reset({
-        storeName: settings.storeName,
-        currency: settings.currency,
-        taxRate: settings.taxRate,
-        paymentMethods: {
-          paystack: settings.paymentMethods.paystack,
-          bankTransfer: settings.paymentMethods.bankTransfer,
-        },
-        contactEmail: settings.contactEmail,
-        contactPhone: settings.contactPhone,
-        address: settings.address,
-      });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target;
+    
+    if (type === 'number') {
+      setSettings(prev => prev ? ({
+        ...prev,
+        [name]: parseFloat(value)
+      }) : null);
+    } else {
+      setSettings(prev => prev ? ({
+        ...prev,
+        [name]: value
+      }) : null);
     }
-  }, [settings, form]);
-
-  const updateSettingsMutation = useMutation({
-    mutationFn: (data: FormValues) => {
-      const updatedSettings: Partial<StoreSettings> = {
-        id: settings?.id,
-        ...data,
-      };
-      return updateStoreSettings(updatedSettings);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['store-settings'] });
-      toast({
-        title: 'Settings updated',
-        description: 'Store settings have been updated successfully.',
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: 'Error',
-        description: `Failed to update settings: ${error.message}`,
-        variant: 'destructive',
-      });
-    },
-  });
-
-  const onSubmit = (data: FormValues) => {
-    updateSettingsMutation.mutate(data);
   };
 
-  if (!isAdmin) {
+  const handleSwitchChange = (name: string, checked: boolean) => {
+    setSettings(prev => {
+      if (!prev) return null;
+      
+      if (name.startsWith('paymentMethods.')) {
+        const methodName = name.split('.')[1] as 'paystack' | 'bankTransfer';
+        return {
+          ...prev,
+          paymentMethods: {
+            ...prev.paymentMethods,
+            [methodName]: checked
+          }
+        };
+      }
+      
+      return {
+        ...prev,
+        [name]: checked
+      };
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!settings) return;
+    
+    setIsSaving(true);
+    try {
+      await updateStoreSettings(settings);
+      toast({
+        title: 'Success',
+        description: 'Store settings updated successfully',
+      });
+    } catch (error) {
+      console.error('Error saving store settings:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update store settings',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isLoading) {
     return (
-      <div className="container py-8">
-        <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-        <p>You do not have permission to access this page.</p>
+      <div className="flex justify-center items-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
+  const defaultSettings: StoreSettingsType = settings || {
+    id: '',
+    storeName: 'Hidaaya Store',
+    currency: 'NGN',
+    taxRate: 0,
+    paymentMethods: {
+      paystack: true,
+      bankTransfer: false,
+    },
+    contactEmail: '',
+    contactPhone: '',
+    address: '',
+    created_at: '',
+    updated_at: '',
+  };
+
   return (
-    <div className="container py-8">
-      <h1 className="text-2xl font-bold mb-6">Store Settings</h1>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>General Settings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-center py-4">Loading settings...</div>
-          ) : (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="storeName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Store Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="currency"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Currency</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Currency code (e.g., NGN, USD)
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="taxRate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tax Rate (%)</FormLabel>
-                        <FormControl>
-                          <Input type="number" min="0" step="0.01" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+    <div className="container mx-auto py-10">
+      <h1 className="text-3xl font-bold mb-6">Store Settings</h1>
+      
+      <form onSubmit={handleSubmit}>
+        <div className="grid gap-6 mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>General Settings</CardTitle>
+              <CardDescription>Configure your store's basic information</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="storeName">Store Name</Label>
+                  <Input 
+                    id="storeName" 
+                    name="storeName" 
+                    value={defaultSettings.storeName}
+                    onChange={handleInputChange}
+                    required
                   />
                 </div>
-
+                
+                <div className="space-y-2">
+                  <Label htmlFor="currency">Currency</Label>
+                  <Input 
+                    id="currency" 
+                    name="currency" 
+                    value={defaultSettings.currency}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="taxRate">Tax Rate (%)</Label>
+                  <Input 
+                    id="taxRate" 
+                    name="taxRate" 
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={defaultSettings.taxRate}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Payment Methods</CardTitle>
+              <CardDescription>Configure which payment methods your store accepts</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-medium mb-2">Payment Methods</h3>
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="paymentMethods.paystack"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Enable Paystack</FormLabel>
-                            <FormDescription>
-                              Accept credit card payments via Paystack
-                            </FormDescription>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="paymentMethods.bankTransfer"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Enable Bank Transfer</FormLabel>
-                            <FormDescription>
-                              Allow customers to pay via bank transfer
-                            </FormDescription>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <Label htmlFor="paystack">Paystack</Label>
+                  <p className="text-sm text-gray-500">Accept payments with Paystack</p>
                 </div>
-
+                <Switch 
+                  id="paystack"
+                  checked={defaultSettings.paymentMethods.paystack}
+                  onCheckedChange={(checked) => handleSwitchChange('paymentMethods.paystack', checked)}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-medium mb-2">Contact Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="contactEmail"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Contact Email</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="contactPhone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Contact Phone</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="address"
-                      render={({ field }) => (
-                        <FormItem className="col-span-2">
-                          <FormLabel>Store Address</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <Label htmlFor="bankTransfer">Bank Transfer</Label>
+                  <p className="text-sm text-gray-500">Accept payments via bank transfer</p>
                 </div>
-
-                <Button type="submit" disabled={updateSettingsMutation.isPending}>
-                  <Save className="h-4 w-4 mr-2" />
-                  {updateSettingsMutation.isPending ? 'Saving...' : 'Save Settings'}
-                </Button>
-              </form>
-            </Form>
-          )}
-        </CardContent>
-      </Card>
+                <Switch 
+                  id="bankTransfer"
+                  checked={defaultSettings.paymentMethods.bankTransfer}
+                  onCheckedChange={(checked) => handleSwitchChange('paymentMethods.bankTransfer', checked)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+              <CardDescription>Set your store's contact details</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="contactEmail">Contact Email</Label>
+                  <Input 
+                    id="contactEmail" 
+                    name="contactEmail" 
+                    type="email"
+                    value={defaultSettings.contactEmail}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="contactPhone">Contact Phone</Label>
+                  <Input 
+                    id="contactPhone" 
+                    name="contactPhone" 
+                    value={defaultSettings.contactPhone}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="address">Address</Label>
+                  <Input 
+                    id="address" 
+                    name="address" 
+                    value={defaultSettings.address}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Save Settings
+          </Button>
+        </div>
+      </form>
     </div>
   );
 };

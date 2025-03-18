@@ -7,7 +7,12 @@ export async function getOrdersFromDB(): Promise<Order[]> {
     .from('orders')
     .select(`
       *,
-      customer:profiles(id, first_name, last_name, email),
+      customer:user_id(
+        id, 
+        first_name, 
+        last_name, 
+        email
+      ),
       items:order_items(
         id, 
         product_id,
@@ -59,7 +64,12 @@ export async function getOrderByIdFromDB(orderId: string): Promise<Order | null>
     .from('orders')
     .select(`
       *,
-      customer:profiles(id, first_name, last_name, email),
+      customer:user_id(
+        id, 
+        first_name, 
+        last_name, 
+        email
+      ),
       items:order_items(
         id, 
         product_id,

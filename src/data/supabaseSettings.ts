@@ -25,9 +25,9 @@ export async function getStoreSettingsFromDB(): Promise<StoreSettings | null> {
       paystack: data.payment_methods?.paystack || false,
       bankTransfer: data.payment_methods?.bank_transfer || false,
     },
-    contactEmail: data.contact_email,
-    contactPhone: data.contact_phone,
-    address: data.address,
+    contactEmail: data.contact_email || '',
+    contactPhone: data.contact_phone || '',
+    address: data.address || '',
     created_at: data.created_at,
     updated_at: data.updated_at
   };
@@ -37,16 +37,24 @@ export async function getStoreSettingsFromDB(): Promise<StoreSettings | null> {
 
 export async function updateStoreSettings(settings: Partial<StoreSettings>): Promise<void> {
   // Transform settings to match the database schema
-  const dbSettings = {
+  const dbSettings: any = {
     store_name: settings.storeName,
     currency: settings.currency,
     tax_rate: settings.taxRate,
-    payment_methods: settings.paymentMethods,
+    payment_methods: settings.paymentMethods ? {
+      paystack: settings.paymentMethods.paystack,
+      bank_transfer: settings.paymentMethods.bankTransfer
+    } : undefined,
     contact_email: settings.contactEmail,
     contact_phone: settings.contactPhone,
     address: settings.address,
     updated_at: new Date().toISOString()
   };
+
+  // Remove undefined keys
+  Object.keys(dbSettings).forEach(key => 
+    dbSettings[key] === undefined && delete dbSettings[key]
+  );
 
   // If we have a settings record, update it, otherwise insert a new one
   if (settings.id) {
