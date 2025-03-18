@@ -24,6 +24,8 @@ export const useCheckout = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [emailSentStatus, setEmailSentStatus] = useState<'success' | 'limited' | 'failed' | null>(null);
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
+  
   interface OrderDetails {
     customer: {
       firstName: string;
@@ -39,6 +41,7 @@ export const useCheckout = () => {
     recipientEmail: string;
     orderId: string;
     orderDate: string;
+    paymentReference?: string;
   }
 
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
@@ -48,7 +51,7 @@ export const useCheckout = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const sendOrderNotification = async () => {
+  const sendOrderNotification = async (paymentReference?: string) => {
     try {
       const orderId = `ORD-${Date.now().toString().slice(-6)}`;
       const orderDate = new Date().toLocaleDateString('en-US', {
@@ -69,9 +72,10 @@ export const useCheckout = () => {
         },
         items,
         subtotal,
-        recipientEmail: "faosiatolamide2017@gmail.com", // Admin email - updated here
+        recipientEmail: "faosiatolamide2017@gmail.com", // Admin email
         orderId,
-        orderDate
+        orderDate,
+        paymentReference
       };
       
       // Save order details for receipt generation
@@ -132,12 +136,17 @@ export const useCheckout = () => {
       return;
     }
     
+    // Set payment as initiated
+    setPaymentInitiated(true);
+  };
+  
+  const handlePaymentSuccess = async (reference: string) => {
     setIsSubmitting(true);
     
-    // Simulate order processing with a timeout
+    // Process the order
     setTimeout(async () => {
-      // Send order notification to admin
-      const notificationResult = await sendOrderNotification();
+      // Send order notification to admin with payment reference
+      const notificationResult = await sendOrderNotification(reference);
       
       setIsSubmitting(false);
       setOrderComplete(true);
@@ -145,17 +154,25 @@ export const useCheckout = () => {
       
       if (notificationResult.success) {
         toast({
-          title: "Order placed successfully!",
-          description: "Thank you for your purchase.",
+          title: "Payment successful!",
+          description: "Your order has been placed. Thank you for your purchase.",
         });
       } else {
         toast({
           title: "Order placed",
-          description: "Your order was placed, but we encountered an issue sending notification emails.",
+          description: "Your payment was successful, but we encountered an issue sending confirmation emails.",
           variant: "destructive",
         });
       }
-    }, 2000);
+    }, 1000);
+  };
+  
+  const handlePaymentClose = () => {
+    setPaymentInitiated(false);
+    toast({
+      title: "Payment cancelled",
+      description: "You can try again when you're ready.",
+    });
   };
   
   return {
@@ -164,7 +181,10 @@ export const useCheckout = () => {
     orderComplete,
     emailSentStatus,
     orderDetails,
+    paymentInitiated,
     handleChange,
     handleSubmit,
+    handlePaymentSuccess,
+    handlePaymentClose,
   };
 };

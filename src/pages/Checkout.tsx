@@ -10,7 +10,7 @@ import CheckoutOrderSummary from '@/components/checkout/CheckoutOrderSummary';
 import OrderSuccess from '@/components/checkout/OrderSuccess';
 
 const Checkout = () => {
-  const { items } = useCart();
+  const { items, subtotal } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -20,9 +20,35 @@ const Checkout = () => {
     orderComplete, 
     emailSentStatus, 
     orderDetails,
+    paymentInitiated,
     handleChange, 
-    handleSubmit 
+    handleSubmit,
+    handlePaymentSuccess,
+    handlePaymentClose
   } = useCheckout();
+  
+  // Add Paystack script on component mount
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    
+    const onScriptError = () => {
+      toast({
+        title: "Payment initialization failed",
+        description: "Unable to load payment provider. Please check your internet connection.",
+        variant: "destructive",
+      });
+    };
+    
+    script.addEventListener('error', onScriptError);
+    document.body.appendChild(script);
+    
+    return () => {
+      script.removeEventListener('error', onScriptError);
+      document.body.removeChild(script);
+    };
+  }, []);
   
   useEffect(() => {
     if (!isAuthenticated) {
@@ -64,6 +90,10 @@ const Checkout = () => {
               handleChange={handleChange}
               handleSubmit={handleSubmit}
               isSubmitting={isSubmitting}
+              paymentInitiated={paymentInitiated}
+              onPaymentSuccess={handlePaymentSuccess}
+              onPaymentClose={handlePaymentClose}
+              subtotal={subtotal}
             />
           </div>
           

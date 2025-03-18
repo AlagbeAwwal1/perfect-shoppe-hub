@@ -3,6 +3,7 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import PaystackCheckout from './PaystackCheckout';
 
 interface ShippingFormProps {
   formData: {
@@ -18,9 +19,22 @@ interface ShippingFormProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
+  paymentInitiated?: boolean;
+  onPaymentSuccess?: (reference: string) => void;
+  onPaymentClose?: () => void;
+  subtotal?: number;
 }
 
-const ShippingForm = ({ formData, handleChange, handleSubmit, isSubmitting }: ShippingFormProps) => {
+const ShippingForm = ({ 
+  formData, 
+  handleChange, 
+  handleSubmit, 
+  isSubmitting,
+  paymentInitiated = false,
+  onPaymentSuccess = () => {},
+  onPaymentClose = () => {},
+  subtotal = 0
+}: ShippingFormProps) => {
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
       <h2 className="text-xl font-medium text-gray-900 mb-6">Shipping Information</h2>
@@ -37,6 +51,7 @@ const ShippingForm = ({ formData, handleChange, handleSubmit, isSubmitting }: Sh
               value={formData.firstName}
               onChange={handleChange}
               required
+              disabled={paymentInitiated}
             />
           </div>
           <div>
@@ -49,6 +64,7 @@ const ShippingForm = ({ formData, handleChange, handleSubmit, isSubmitting }: Sh
               value={formData.lastName}
               onChange={handleChange}
               required
+              disabled={paymentInitiated}
             />
           </div>
         </div>
@@ -64,6 +80,7 @@ const ShippingForm = ({ formData, handleChange, handleSubmit, isSubmitting }: Sh
             value={formData.email}
             onChange={handleChange}
             required
+            disabled={paymentInitiated}
           />
         </div>
         
@@ -77,6 +94,7 @@ const ShippingForm = ({ formData, handleChange, handleSubmit, isSubmitting }: Sh
             value={formData.address}
             onChange={handleChange}
             required
+            disabled={paymentInitiated}
           />
         </div>
         
@@ -91,6 +109,7 @@ const ShippingForm = ({ formData, handleChange, handleSubmit, isSubmitting }: Sh
               value={formData.city}
               onChange={handleChange}
               required
+              disabled={paymentInitiated}
             />
           </div>
           <div>
@@ -103,6 +122,7 @@ const ShippingForm = ({ formData, handleChange, handleSubmit, isSubmitting }: Sh
               value={formData.state}
               onChange={handleChange}
               required
+              disabled={paymentInitiated}
             />
           </div>
           <div>
@@ -114,6 +134,7 @@ const ShippingForm = ({ formData, handleChange, handleSubmit, isSubmitting }: Sh
               name="zipCode"
               value={formData.zipCode}
               onChange={handleChange}
+              disabled={paymentInitiated}
             />
           </div>
         </div>
@@ -128,21 +149,44 @@ const ShippingForm = ({ formData, handleChange, handleSubmit, isSubmitting }: Sh
             value={formData.phoneNumber}
             onChange={handleChange}
             required
+            disabled={paymentInitiated}
           />
         </div>
         
         <h2 className="text-xl font-medium text-gray-900 mb-6 mt-8">Payment Information</h2>
-        <p className="text-gray-600 mb-4">
-          For demo purposes, payment processing is simulated. No real payment will be processed.
-        </p>
         
-        <Button 
-          type="submit"
-          className="w-full md:w-auto bg-brand-purple text-white hover:bg-brand-purple/90"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Processing...' : 'Place Order'}
-        </Button>
+        {!paymentInitiated ? (
+          <>
+            <p className="text-gray-600 mb-4">
+              Complete your order by paying with Paystack, a secure payment platform.
+            </p>
+            
+            <Button 
+              type="submit"
+              className="w-full md:w-auto bg-brand-purple text-white hover:bg-brand-purple/90"
+              disabled={isSubmitting}
+            >
+              Proceed to Payment
+            </Button>
+          </>
+        ) : (
+          <div className="border-t pt-4">
+            <div className="mb-4">
+              <h3 className="text-lg font-medium">Order Summary</h3>
+              <p className="text-xl font-bold text-brand-purple mt-2">Total: ₦{subtotal.toLocaleString()}</p>
+            </div>
+            
+            <PaystackCheckout
+              email={formData.email}
+              amount={subtotal}
+              name={`${formData.firstName} ${formData.lastName}`}
+              phone={formData.phoneNumber}
+              onSuccess={onPaymentSuccess}
+              onClose={onPaymentClose}
+              disabled={isSubmitting}
+            />
+          </div>
+        )}
       </form>
     </div>
   );

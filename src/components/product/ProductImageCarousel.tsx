@@ -7,6 +7,8 @@ import {
   CarouselNext,
   CarouselPrevious
 } from "@/components/ui/carousel";
+import { useEffect } from "react";
+import { useCarousel } from "embla-carousel-react";
 
 interface ProductImageCarouselProps {
   images: string[];
@@ -20,21 +22,44 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   
-  // Handle thumbnail click
-  const selectImage = (index: number) => {
-    setCurrentImageIndex(index);
-    setImageError(false);
-  };
-
   // Create an array of images for the carousel
   const productImages = images && images.length > 0 
     ? images 
     : ['/placeholder.svg'];
+    
+  // Use the Carousel API
+  const [carouselApi, setCarouselApi] = React.useState<ReturnType<typeof useCarousel>["embla"]>();
+  
+  // Handle thumbnail click - select image and scroll carousel to that index
+  const selectImage = (index: number) => {
+    setCurrentImageIndex(index);
+    setImageError(false);
+    if (carouselApi) {
+      carouselApi.scrollTo(index);
+    }
+  };
+  
+  // Update currentImageIndex when carousel scrolls
+  useEffect(() => {
+    if (!carouselApi) return;
+    
+    const onSelect = () => {
+      setCurrentImageIndex(carouselApi.selectedScrollSnap());
+    };
+    
+    carouselApi.on('select', onSelect);
+    return () => {
+      carouselApi.off('select', onSelect);
+    };
+  }, [carouselApi]);
 
   return (
     <div className="space-y-4">
       {/* Carousel implementation */}
-      <Carousel className="w-full max-w-lg mx-auto">
+      <Carousel 
+        className="w-full max-w-lg mx-auto"
+        setApi={setCarouselApi}
+      >
         <CarouselContent>
           {productImages.map((image, index) => (
             <CarouselItem key={index}>
