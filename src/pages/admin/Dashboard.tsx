@@ -10,14 +10,32 @@ import {
   Users,
   Settings,
 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const Dashboard = () => {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const { toast } = useToast();
   
   // Redirect if not authenticated or not an admin
   if (!isAuthenticated || !isAdmin) {
     return <Navigate to="/login" />;
   }
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to log out",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -40,35 +58,41 @@ const Dashboard = () => {
           </div>
         </Link>
         
-        <div className="p-8 rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-brand-purple/40 cursor-not-allowed opacity-70">
-          <div className="mb-4 p-3 bg-brand-purple/10 rounded-full w-fit">
-            <ShoppingBag className="h-6 w-6 text-brand-purple" />
+        <Link to="/admin/orders" className="group">
+          <div className="p-8 rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:border-brand-purple/40">
+            <div className="mb-4 p-3 bg-brand-purple/10 rounded-full w-fit">
+              <ShoppingBag className="h-6 w-6 text-brand-purple" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2 group-hover:text-brand-purple transition-colors">Manage Orders</h2>
+            <p className="text-gray-600">View and process customer orders.</p>
           </div>
-          <h2 className="text-xl font-semibold mb-2">Manage Orders</h2>
-          <p className="text-gray-600">View and process customer orders (coming soon).</p>
-        </div>
+        </Link>
         
-        <div className="p-8 rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-brand-purple/40 cursor-not-allowed opacity-70">
-          <div className="mb-4 p-3 bg-brand-purple/10 rounded-full w-fit">
-            <Users className="h-6 w-6 text-brand-purple" />
+        <Link to="/admin/users" className="group">
+          <div className="p-8 rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:border-brand-purple/40">
+            <div className="mb-4 p-3 bg-brand-purple/10 rounded-full w-fit">
+              <Users className="h-6 w-6 text-brand-purple" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2 group-hover:text-brand-purple transition-colors">Manage Users</h2>
+            <p className="text-gray-600">View and manage user accounts.</p>
           </div>
-          <h2 className="text-xl font-semibold mb-2">Manage Users</h2>
-          <p className="text-gray-600">View and manage user accounts (coming soon).</p>
-        </div>
+        </Link>
         
-        <div className="p-8 rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-brand-purple/40 cursor-not-allowed opacity-70">
-          <div className="mb-4 p-3 bg-brand-purple/10 rounded-full w-fit">
-            <Settings className="h-6 w-6 text-brand-purple" />
+        <Link to="/admin/settings" className="group">
+          <div className="p-8 rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:border-brand-purple/40">
+            <div className="mb-4 p-3 bg-brand-purple/10 rounded-full w-fit">
+              <Settings className="h-6 w-6 text-brand-purple" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2 group-hover:text-brand-purple transition-colors">Store Settings</h2>
+            <p className="text-gray-600">Configure your store settings.</p>
           </div>
-          <h2 className="text-xl font-semibold mb-2">Store Settings</h2>
-          <p className="text-gray-600">Configure your store settings (coming soon).</p>
-        </div>
+        </Link>
       </div>
       
       <div className="mt-12">
         <Button 
           variant="outline" 
-          onClick={() => logout()}
+          onClick={handleLogout}
           className="flex items-center"
         >
           <LogOut className="mr-2 h-4 w-4" />

@@ -1,198 +1,203 @@
 
-import React from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { format } from 'date-fns';
-import { RotateCcw, Shield, UserCheck, UserX } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getUsersFromDB, updateUserRole, updateUserStatus } from '@/data/supabaseUsers';
-import { User, UserRole } from '@/types/user';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { User, UserRole } from '@/types/user';
+import { Button } from '@/components/ui/button';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/components/ui/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { format } from 'date-fns';
 
 const UsersManagement = () => {
-  const { isAdmin, user: currentUser } = useAuth();
+  const navigate = useNavigate();
+  const { isAuthenticated, isAdmin } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [savingUserId, setSavingUserId] = useState<string | null>(null);
 
-  const { data: users = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['admin-users'],
+  // Check for authentication and admin status
+  useEffect(() => {
+    if (!isAuthenticated || !isAdmin) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, isAdmin, navigate]);
+
+  // Fetch users
+  const { data: users, isLoading, error, refetch } = useQuery({
+    queryKey: ['users'],
     queryFn: getUsersFromDB,
-    enabled: isAdmin,
   });
 
-  const updateRoleMutation = useMutation({
-    mutationFn: ({ userId, role }: { userId: string; role: UserRole }) => 
-      updateUserRole(userId, role),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+  // Handle role change
+  const handleRoleChange = async (userId: string, newRole: UserRole) => {
+    try {
+      setSavingUserId(userId);
+      await updateUserRole(userId, newRole);
       toast({
-        title: 'Role updated',
-        description: 'User role has been updated successfully.',
+        title: "Role updated",
+        description: "User role has been successfully updated.",
       });
-    },
-    onError: (error: any) => {
+      refetch();
+    } catch (error: any) {
       toast({
-        title: 'Error',
-        description: `Failed to update user role: ${error.message}`,
-        variant: 'destructive',
+        title: "Error",
+        description: error.message || "Failed to update user role",
+        variant: "destructive",
       });
-    },
-  });
-
-  const updateStatusMutation = useMutation({
-    mutationFn: ({ userId, isActive }: { userId: string; isActive: boolean }) => 
-      updateUserStatus(userId, isActive),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      toast({
-        title: 'Status updated',
-        description: 'User status has been updated successfully.',
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: 'Error',
-        description: `Failed to update user status: ${error.message}`,
-        variant: 'destructive',
-      });
-    },
-  });
-
-  const handleRoleChange = (userId: string, role: UserRole) => {
-    updateRoleMutation.mutate({ userId, role });
+    } finally {
+      setSavingUserId(null);
+    }
   };
 
-  const handleStatusToggle = (user: User) => {
-    updateStatusMutation.mutate({ 
-      userId: user.id, 
-      isActive: !user.isActive 
-    });
+  // Handle status change
+  const handleStatusChange = async (userId: string, isActive: boolean) => {
+    try {
+      setSavingUserId(userId);
+      await updateUserStatus(userId, isActive);
+      toast({
+        title: "Status updated",
+        description: `User has been ${isActive ? 'activated' : 'deactivated'}.`,
+      });
+      refetch();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update user status",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingUserId(null);
+    }
   };
 
-  if (!isAdmin) {
+  if (error) {
     return (
-      <div className="container py-8">
-        <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-        <p>You do not have permission to access this page.</p>
+      <div className="container mx-auto px-4 py-12">
+        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
+          <p>Error loading users: {(error as Error).message}</p>
+          <Button onClick={() => refetch()} className="mt-2">
+            Try Again
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Manage Users</h1>
-        <Button onClick={() => refetch()} size="sm" variant="outline">
-          <RotateCcw className="h-4 w-4 mr-2" />
-          Refresh
+    <div className="container mx-auto px-4 py-12">
+      <div className="flex items-center mb-6">
+        <Button 
+          variant="ghost" 
+          className="mr-4" 
+          onClick={() => navigate('/admin')}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
         </Button>
+        <h1 className="text-3xl font-bold text-brand-purple">User Management</h1>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Users List</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-center py-4">Loading users...</div>
-          ) : error ? (
-            <div className="text-center py-4 text-red-500">
-              Error loading users. Please try again.
-            </div>
-          ) : users.length === 0 ? (
-            <div className="text-center py-4">No users found.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((user: User) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">
-                        {user.firstName} {user.lastName}
-                      </TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        {user.created_at ? format(new Date(user.created_at), 'MMM dd, yyyy') : 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        <Select
-                          defaultValue={user.role}
-                          onValueChange={(value: UserRole) => handleRoleChange(user.id, value)}
-                          disabled={user.id === currentUser?.id} // Can't change own role
+      
+      <div className="w-20 h-1 bg-brand-gold mb-6"></div>
+      
+      {isLoading ? (
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+          <span className="ml-2 text-lg">Loading users...</span>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Joined</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users && users.length > 0 ? (
+                users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      {user.firstName} {user.lastName}
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Select
+                        value={user.role}
+                        onValueChange={(value: UserRole) => 
+                          handleRoleChange(user.id, value as UserRole)
+                        }
+                        disabled={savingUserId === user.id}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="customer">Customer</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={user.isActive}
+                          onCheckedChange={(checked) => 
+                            handleStatusChange(user.id, checked)
+                          }
+                          disabled={savingUserId === user.id}
+                        />
+                        <Badge 
+                          variant={user.isActive ? "default" : "secondary"}
+                          className={user.isActive ? "bg-green-500" : "bg-gray-400"}
                         >
-                          <SelectTrigger className="w-[130px]">
-                            <SelectValue>
-                              <Badge variant={user.role === 'admin' ? 'destructive' : 'default'}>
-                                {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                              </Badge>
-                            </SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="customer">Customer</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={user.isActive ? 'default' : 'outline'}>
-                          {user.isActive ? 'Active' : 'Inactive'}
+                          {user.isActive ? "Active" : "Inactive"}
                         </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleStatusToggle(user)}
-                          disabled={user.id === currentUser?.id} // Can't deactivate yourself
-                        >
-                          {user.isActive ? (
-                            <>
-                              <UserX className="h-4 w-4 mr-1" />
-                              Deactivate
-                            </>
-                          ) : (
-                            <>
-                              <UserCheck className="h-4 w-4 mr-1" />
-                              Activate
-                            </>
-                          )}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {user.created_at ? format(new Date(user.created_at), 'PP') : 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      {savingUserId === user.id && (
+                        <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                    No users found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 };
