@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import { useToast } from '@/components/ui/use-toast';
 const Dashboard = () => {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Redirect if not authenticated or not an admin
   if (!isAuthenticated || !isAdmin) {
@@ -37,6 +38,10 @@ const Dashboard = () => {
     }
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-12">
@@ -48,7 +53,10 @@ const Dashboard = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Link to="/admin/products" className="group">
+        <div 
+          className="cursor-pointer group"
+          onClick={() => handleNavigation('/admin/products')}
+        >
           <div className="p-8 rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:border-brand-purple/40">
             <div className="mb-4 p-3 bg-brand-purple/10 rounded-full w-fit">
               <BoxIcon className="h-6 w-6 text-brand-purple" />
@@ -56,9 +64,12 @@ const Dashboard = () => {
             <h2 className="text-xl font-semibold mb-2 group-hover:text-brand-purple transition-colors">Manage Products</h2>
             <p className="text-gray-600">Add, edit, or remove products from your store inventory.</p>
           </div>
-        </Link>
+        </div>
         
-        <Link to="/admin/orders" className="group">
+        <div 
+          className="cursor-pointer group"
+          onClick={() => handleNavigation('/admin/orders')}
+        >
           <div className="p-8 rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:border-brand-purple/40">
             <div className="mb-4 p-3 bg-brand-purple/10 rounded-full w-fit">
               <ShoppingBag className="h-6 w-6 text-brand-purple" />
@@ -66,9 +77,12 @@ const Dashboard = () => {
             <h2 className="text-xl font-semibold mb-2 group-hover:text-brand-purple transition-colors">Manage Orders</h2>
             <p className="text-gray-600">View and process customer orders.</p>
           </div>
-        </Link>
+        </div>
         
-        <Link to="/admin/users" className="group">
+        <div 
+          className="cursor-pointer group"
+          onClick={() => handleNavigation('/admin/users')}
+        >
           <div className="p-8 rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:border-brand-purple/40">
             <div className="mb-4 p-3 bg-brand-purple/10 rounded-full w-fit">
               <Users className="h-6 w-6 text-brand-purple" />
@@ -76,9 +90,12 @@ const Dashboard = () => {
             <h2 className="text-xl font-semibold mb-2 group-hover:text-brand-purple transition-colors">Manage Users</h2>
             <p className="text-gray-600">View and manage user accounts.</p>
           </div>
-        </Link>
+        </div>
         
-        <Link to="/admin/settings" className="group">
+        <div 
+          className="cursor-pointer group"
+          onClick={() => handleNavigation('/admin/settings')}
+        >
           <div className="p-8 rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:border-brand-purple/40">
             <div className="mb-4 p-3 bg-brand-purple/10 rounded-full w-fit">
               <Settings className="h-6 w-6 text-brand-purple" />
@@ -86,7 +103,7 @@ const Dashboard = () => {
             <h2 className="text-xl font-semibold mb-2 group-hover:text-brand-purple transition-colors">Store Settings</h2>
             <p className="text-gray-600">Configure your store settings.</p>
           </div>
-        </Link>
+        </div>
       </div>
       
       <div className="mt-12">

@@ -21,7 +21,7 @@ type AuthContextType = {
 };
 
 // Admin emails - you can replace these with your actual admin emails
-const ADMIN_EMAILS = ["alagbeawwal@gmail.com"];
+const ADMIN_EMAILS = ["alagbeawwal@gmail.com", "test@example.com"];
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -61,7 +61,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (session?.user) {
       const { id, email } = session.user;
       const name = email?.split('@')[0] || 'User'; // Default name from email
+      
       const userIsAdmin = email ? ADMIN_EMAILS.includes(email) : false;
+      console.log('User email:', email, 'Is admin:', userIsAdmin);
       
       setUser({
         id,
