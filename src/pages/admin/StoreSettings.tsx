@@ -13,7 +13,7 @@ import { Loader2 } from 'lucide-react';
 
 const StoreSettings = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [settings, setSettings] = useState<StoreSettingsType | null>(null);
@@ -21,7 +21,9 @@ const StoreSettings = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
+        setIsLoading(true);
         const data = await getStoreSettingsFromDB();
+        console.log('Fetched settings in component:', data);
         setSettings(data);
       } catch (error) {
         console.error('Error fetching store settings:', error);
@@ -35,8 +37,10 @@ const StoreSettings = () => {
       }
     };
 
-    fetchSettings();
-  }, [toast]);
+    if (user && isAdmin) {
+      fetchSettings();
+    }
+  }, [toast, user, isAdmin]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -82,11 +86,16 @@ const StoreSettings = () => {
     
     setIsSaving(true);
     try {
+      console.log('Submitting settings:', settings);
       await updateStoreSettings(settings);
       toast({
         title: 'Success',
         description: 'Store settings updated successfully',
       });
+      
+      // Refresh settings after update
+      const updatedSettings = await getStoreSettingsFromDB();
+      setSettings(updatedSettings);
     } catch (error) {
       console.error('Error saving store settings:', error);
       toast({

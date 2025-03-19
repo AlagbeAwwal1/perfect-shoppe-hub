@@ -64,10 +64,10 @@ export async function updateStoreSettings(settings: Partial<StoreSettings>): Pro
       store_name: settings.storeName,
       currency: settings.currency,
       tax_rate: settings.taxRate,
-      payment_methods: settings.paymentMethods ? {
+      payment_methods: settings.paymentMethods ? JSON.stringify({
         paystack: settings.paymentMethods.paystack,
         bank_transfer: settings.paymentMethods.bankTransfer
-      } : undefined,
+      }) : undefined,
       contact_email: settings.contactEmail,
       contact_phone: settings.contactPhone,
       address: settings.address,
@@ -78,6 +78,8 @@ export async function updateStoreSettings(settings: Partial<StoreSettings>): Pro
     Object.keys(dbSettings).forEach(key => 
       dbSettings[key] === undefined && delete dbSettings[key]
     );
+
+    console.log('Prepared settings for database:', dbSettings);
 
     // If we have a settings record, update it, otherwise insert a new one
     if (settings.id) {
@@ -90,6 +92,8 @@ export async function updateStoreSettings(settings: Partial<StoreSettings>): Pro
         console.error('Error updating store settings:', error);
         throw error;
       }
+      
+      console.log('Updated existing settings with ID:', settings.id);
     } else {
       const { error } = await supabase
         .from('store_settings')
@@ -99,6 +103,8 @@ export async function updateStoreSettings(settings: Partial<StoreSettings>): Pro
         console.error('Error creating store settings:', error);
         throw error;
       }
+      
+      console.log('Created new store settings');
     }
     
     console.log('Store settings updated successfully');
