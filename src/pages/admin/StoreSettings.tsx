@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
@@ -7,9 +7,11 @@ import { useStoreSettings } from '@/hooks/useStoreSettings';
 import GeneralSettingsCard from '@/components/admin/settings/GeneralSettingsCard';
 import PaymentMethodsCard from '@/components/admin/settings/PaymentMethodsCard';
 import ContactInfoCard from '@/components/admin/settings/ContactInfoCard';
+import { useToast } from '@/components/ui/use-toast';
 
 const StoreSettings = () => {
   const { user, isAdmin } = useAuth();
+  const { toast } = useToast();
   
   const {
     settings,
@@ -20,8 +22,13 @@ const StoreSettings = () => {
     saveSettings
   } = useStoreSettings(isAdmin, user?.id);
 
+  useEffect(() => {
+    console.log("Current settings state:", settings);
+  }, [settings]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submitted, saving settings:", settings);
     saveSettings();
   };
 

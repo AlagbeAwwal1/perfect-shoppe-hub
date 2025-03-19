@@ -14,7 +14,10 @@ export async function getStoreSettingsFromDB(): Promise<StoreSettings | null> {
       throw error;
     }
 
-    if (!data) return null;
+    if (!data) {
+      console.log('No store settings found in database');
+      return null;
+    }
 
     // Parse payment methods safely
     let paymentMethods = { paystack: false, bankTransfer: false };
@@ -26,7 +29,7 @@ export async function getStoreSettingsFromDB(): Promise<StoreSettings | null> {
           
         paymentMethods = {
           paystack: Boolean(methods.paystack),
-          bankTransfer: Boolean(methods.bank_transfer)
+          bankTransfer: Boolean(methods.bank_transfer || methods.bankTransfer)
         };
       } catch (e) {
         console.error('Error parsing payment methods:', e);
@@ -36,15 +39,15 @@ export async function getStoreSettingsFromDB(): Promise<StoreSettings | null> {
     // Transform the data to match our StoreSettings type
     const settings: StoreSettings = {
       id: data.id,
-      storeName: data.store_name,
-      currency: data.currency,
-      taxRate: data.tax_rate,
+      storeName: data.store_name || '',
+      currency: data.currency || 'NGN',
+      taxRate: Number(data.tax_rate) || 0,
       paymentMethods,
       contactEmail: data.contact_email || '',
       contactPhone: data.contact_phone || '',
       address: data.address || '',
-      created_at: data.created_at,
-      updated_at: data.updated_at
+      created_at: data.created_at || '',
+      updated_at: data.updated_at || ''
     };
 
     console.log('Fetched store settings:', settings);
@@ -64,15 +67,19 @@ export async function updateStoreSettings(settings: Partial<StoreSettings>): Pro
       store_name: settings.storeName,
       currency: settings.currency,
       tax_rate: settings.taxRate,
-      payment_methods: settings.paymentMethods ? JSON.stringify({
-        paystack: settings.paymentMethods.paystack,
-        bank_transfer: settings.paymentMethods.bankTransfer
-      }) : undefined,
       contact_email: settings.contactEmail,
       contact_phone: settings.contactPhone,
       address: settings.address,
       updated_at: new Date().toISOString()
     };
+    
+    // Handle payment methods properly
+    if (settings.paymentMethods) {
+      dbSettings.payment_methods = JSON.stringify({
+        paystack: settings.paymentMethods.paystack,
+        bank_transfer: settings.paymentMethods.bankTransfer
+      });
+    }
 
     // Remove undefined keys
     Object.keys(dbSettings).forEach(key => 

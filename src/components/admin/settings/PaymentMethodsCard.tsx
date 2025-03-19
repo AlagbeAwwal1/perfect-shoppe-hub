@@ -26,7 +26,10 @@ const PaymentMethodsCard = ({ settings, handleSwitchChange }: PaymentMethodsCard
           <Switch 
             id="paystack"
             checked={settings.paymentMethods.paystack}
-            onCheckedChange={(checked) => handleSwitchChange('paymentMethods.paystack', checked)}
+            onCheckedChange={(checked) => {
+              console.log("Toggling paystack to:", checked);
+              handleSwitchChange('paymentMethods.paystack', checked);
+            }}
           />
         </div>
         
@@ -38,7 +41,10 @@ const PaymentMethodsCard = ({ settings, handleSwitchChange }: PaymentMethodsCard
           <Switch 
             id="bankTransfer"
             checked={settings.paymentMethods.bankTransfer}
-            onCheckedChange={(checked) => handleSwitchChange('paymentMethods.bankTransfer', checked)}
+            onCheckedChange={(checked) => {
+              console.log("Toggling bank transfer to:", checked);
+              handleSwitchChange('paymentMethods.bankTransfer', checked);
+            }}
           />
         </div>
       </CardContent>
