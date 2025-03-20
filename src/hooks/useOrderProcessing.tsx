@@ -44,6 +44,9 @@ export const useOrderProcessing = () => {
   
   const createOrderInDatabase = async (formData: any, paymentReference?: string) => {
     try {
+      console.log("Creating order in database with data:", formData);
+      console.log("Payment reference:", paymentReference);
+      
       // Create order record
       const { data: orderData, error: orderError } = await supabase.from('orders').insert({
         user_id: formData.userId,
@@ -61,6 +64,8 @@ export const useOrderProcessing = () => {
         throw orderError;
       }
       
+      console.log("Order created successfully with ID:", orderData.id);
+      
       // Insert order items
       const orderItems = items.map(item => ({
         order_id: orderData.id,
@@ -70,12 +75,16 @@ export const useOrderProcessing = () => {
         quantity: item.quantity
       }));
       
+      console.log("Inserting order items:", orderItems);
+      
       const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
       
       if (itemsError) {
         console.error("Error creating order items:", itemsError);
         throw itemsError;
       }
+      
+      console.log("Order items created successfully");
       
       return orderData.id;
     } catch (error) {
@@ -120,24 +129,31 @@ export const useOrderProcessing = () => {
       
       console.log("Sending order notification with data:", orderData);
       
-      const { data, error } = await supabase.functions.invoke('send-order-notification', {
-        body: orderData
-      });
-      
-      if (error) {
-        console.error("Error sending order notification:", error);
-        // Always set email status to success
+      try {
+        const { data, error } = await supabase.functions.invoke('send-order-notification', {
+          body: orderData
+        });
+        
+        if (error) {
+          console.error("Error sending order notification:", error);
+          // Always set email status to success, even if there was an error
+          setEmailSentStatus('success');
+          return { success: true, adminEmailSent: false, customerEmailSent: false };
+        } else {
+          console.log("Order notification sent successfully:", data);
+          setEmailSentStatus('success');
+          return { success: true, adminEmailSent: true, customerEmailSent: true };
+        }
+      } catch (notificationError) {
+        console.error("Exception when sending order notification:", notificationError);
+        // Even on error, set email status to success
         setEmailSentStatus('success');
         return { success: true, adminEmailSent: false, customerEmailSent: false };
-      } else {
-        console.log("Order notification sent successfully:", data);
-        // Always set email status to success
-        setEmailSentStatus('success');
-        return { success: true, adminEmailSent: true, customerEmailSent: true };
       }
     } catch (error) {
-      console.error("Exception when sending order notification:", error);
-      // Even on error, set email status to success
+      console.error("Exception in sendOrderNotification:", error);
+      // Crucially, we still want to set the email status to success
+      // and save any order details we can for the receipt
       setEmailSentStatus('success');
       return { success: true, adminEmailSent: false, customerEmailSent: false };
     }

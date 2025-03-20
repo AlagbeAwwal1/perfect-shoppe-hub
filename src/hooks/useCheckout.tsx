@@ -26,6 +26,8 @@ export const useCheckout = () => {
     setIsSubmitting(true);
     
     try {
+      console.log("Processing order with reference:", reference);
+      
       // Process the order with a short delay to show loading state
       await new Promise(resolve => setTimeout(resolve, 1000));
       
@@ -35,7 +37,9 @@ export const useCheckout = () => {
         userId: user?.id
       };
       
-      await sendOrderNotification(orderFormData, reference);
+      console.log("Sending order with formData:", orderFormData);
+      const result = await sendOrderNotification(orderFormData, reference);
+      console.log("Order notification result:", result);
       
       // Always show success message
       toast({

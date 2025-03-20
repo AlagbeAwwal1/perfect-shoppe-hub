@@ -4,8 +4,7 @@ import { Check, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
-import { useCart } from '@/contexts/CartContext';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 
 interface OrderSuccessProps {
   emailStatus: 'success' | 'limited' | 'failed' | null;
@@ -30,6 +29,7 @@ interface OrderSuccessProps {
 
 const OrderSuccess = ({ emailStatus, customerEmail, orderDetails }: OrderSuccessProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   // Check if we have valid order details before trying to generate a receipt
   const canGenerateReceipt = orderDetails !== null && 
@@ -40,6 +40,8 @@ const OrderSuccess = ({ emailStatus, customerEmail, orderDetails }: OrderSuccess
   useEffect(() => {
     if (!canGenerateReceipt) {
       console.log("Order details not available for receipt generation:", orderDetails);
+    } else {
+      console.log("Order details available for receipt generation:", orderDetails);
     }
   }, [orderDetails, canGenerateReceipt]);
   
