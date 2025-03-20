@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Check, Info, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -26,13 +26,35 @@ interface OrderSuccessProps {
     subtotal: number;
     orderId: string;
     orderDate: string;
-  };
+  } | null;
 }
 
 const OrderSuccess = ({ emailStatus, customerEmail, orderDetails }: OrderSuccessProps) => {
   const navigate = useNavigate();
   
+  // Check if we have valid order details before trying to generate a receipt
+  const canGenerateReceipt = orderDetails !== null && 
+                            orderDetails.orderId && 
+                            orderDetails.items && 
+                            orderDetails.items.length > 0;
+  
+  useEffect(() => {
+    if (!canGenerateReceipt) {
+      console.log("Order details not available for receipt generation:", orderDetails);
+    }
+  }, [orderDetails, canGenerateReceipt]);
+  
   const generateReceipt = () => {
+    // Guard clause to prevent errors when orderDetails is null
+    if (!canGenerateReceipt) {
+      toast({
+        title: "Receipt unavailable",
+        description: "Order details are not available to generate a receipt.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       const doc = new jsPDF();
       
@@ -136,6 +158,7 @@ const OrderSuccess = ({ emailStatus, customerEmail, orderDetails }: OrderSuccess
             <Button 
               className="flex items-center gap-2 bg-brand-purple text-white hover:bg-brand-purple/90"
               onClick={generateReceipt}
+              disabled={!canGenerateReceipt}
             >
               <Download className="h-4 w-4" />
               Download Receipt
