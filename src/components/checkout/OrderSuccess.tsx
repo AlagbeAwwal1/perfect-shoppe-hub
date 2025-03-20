@@ -1,9 +1,8 @@
 
 import React, { useEffect } from 'react';
-import { Check, Info, Download } from 'lucide-react';
+import { Check, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { jsPDF } from 'jspdf';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/components/ui/use-toast';
