@@ -1,4 +1,3 @@
-
 import { CustomerInfo, OrderItem } from "./types.ts";
 
 // Define the sender email
@@ -16,116 +15,130 @@ export const formatItemsList = (items: OrderItem[]): string => {
 };
 
 export const generateAdminEmailHtml = (
-  customer: CustomerInfo, 
-  itemsList: string, 
-  subtotal: number, 
-  orderId: string, 
+  customer: any,
+  itemsList: string,
+  subtotal: number,
+  orderId: string,
   orderDate: string
-): string => {
+) => {
   return `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h1 style="color: #6b21a8; text-align: center;">The Perfect Shoppe</h1>
-      <h2 style="color: #333;">New Order Received</h2>
-      
-      <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-        <h3 style="margin-top: 0;">Order Information</h3>
-        <p><strong>Order ID:</strong> ${orderId}</p>
-        <p><strong>Date:</strong> ${orderDate}</p>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>New Order Notification</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .order-details { margin-bottom: 30px; }
+        .customer-info { margin-bottom: 30px; }
+        .items-table { width: 100%; border-collapse: collapse; }
+        .items-table th, .items-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .items-table th { background-color: #f2f2f2; }
+        .total { font-weight: bold; text-align: right; margin-top: 20px; }
+        .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #777; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>New Order Received</h1>
+          <p>Order #${orderId} - ${orderDate}</p>
+        </div>
+        
+        <div class="order-details">
+          <h2>Order Details</h2>
+          <p><strong>Order ID:</strong> ${orderId}</p>
+          <p><strong>Date:</strong> ${orderDate}</p>
+          <p><strong>Total Amount:</strong> ₦${subtotal.toLocaleString()}</p>
+        </div>
+        
+        <div class="customer-info">
+          <h2>Customer Information</h2>
+          <p><strong>Name:</strong> ${customer.firstName} ${customer.lastName}</p>
+          <p><strong>Email:</strong> ${customer.email}</p>
+          <p><strong>Phone:</strong> ${customer.phoneNumber}</p>
+          <p><strong>Shipping Address:</strong> ${customer.address}, ${customer.city}, ${customer.state}</p>
+          ${customer.comments ? `<p><strong>Comments:</strong> ${customer.comments}</p>` : ''}
+        </div>
+        
+        <h2>Items Ordered</h2>
+        ${itemsList}
+        
+        <div class="total">
+          <p>Total: ₦${subtotal.toLocaleString()}</p>
+        </div>
+        
+        <div class="footer">
+          <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
       </div>
-      
-      <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-        <h3 style="margin-top: 0;">Customer Information</h3>
-        <p><strong>Name:</strong> ${customer.firstName} ${customer.lastName}</p>
-        <p><strong>Email:</strong> ${customer.email}</p>
-        <p><strong>Phone:</strong> ${customer.phoneNumber}</p>
-        <p><strong>Address:</strong> ${customer.address}, ${customer.city}, ${customer.state}</p>
-      </div>
-      
-      <h3>Order Details</h3>
-      <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-          <tr style="background-color: #f2f2f2;">
-            <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Product</th>
-            <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Quantity</th>
-            <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Price</th>
-            <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${itemsList}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="3" style="padding: 8px; text-align: right; font-weight: bold;">Subtotal:</td>
-            <td style="padding: 8px; font-weight: bold;">₦${subtotal.toLocaleString()}</td>
-          </tr>
-        </tfoot>
-      </table>
-      
-      <p style="text-align: center; margin-top: 20px; color: #666;">
-        You can view and manage this order on your admin dashboard.
-      </p>
-    </div>
+    </body>
+    </html>
   `;
 };
 
 export const generateCustomerEmailHtml = (
-  customer: CustomerInfo, 
-  itemsList: string, 
-  subtotal: number, 
-  orderId: string, 
+  customer: any,
+  itemsList: string,
+  subtotal: number,
+  orderId: string,
   orderDate: string
-): string => {
+) => {
   return `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h1 style="color: #6b21a8; text-align: center;">The Perfect Shoppe</h1>
-      <h2 style="color: #333;">Thank You for Your Order!</h2>
-      
-      <p style="margin-bottom: 20px;">Dear ${customer.firstName},</p>
-      
-      <p style="margin-bottom: 20px;">Thank you for shopping with us. We've received your order and are working on processing it as soon as possible.</p>
-      
-      <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-        <h3 style="margin-top: 0;">Order Information</h3>
-        <p><strong>Order ID:</strong> ${orderId}</p>
-        <p><strong>Date:</strong> ${orderDate}</p>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Order Confirmation</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { color: #6b21a8; }
+        .message { margin-bottom: 30px; }
+        .order-details { margin-bottom: 30px; }
+        .items-table { width: 100%; border-collapse: collapse; }
+        .items-table th, .items-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .items-table th { background-color: #f2f2f2; }
+        .total { font-weight: bold; text-align: right; margin-top: 20px; }
+        .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #777; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Thank You for Your Order!</h1>
+          <p>Order #${orderId}</p>
+        </div>
+        
+        <div class="message">
+          <p>Dear ${customer.firstName},</p>
+          <p>Thank you for shopping with The Perfect Shoppe! Your order has been received and is being processed.</p>
+        </div>
+        
+        <div class="order-details">
+          <h2>Order Details</h2>
+          <p><strong>Order Number:</strong> ${orderId}</p>
+          <p><strong>Order Date:</strong> ${orderDate}</p>
+          <p><strong>Shipping Address:</strong> ${customer.address}, ${customer.city}, ${customer.state}</p>
+          ${customer.comments ? `<p><strong>Your Comments:</strong> ${customer.comments}</p>` : ''}
+        </div>
+        
+        <h2>Items Ordered</h2>
+        ${itemsList}
+        
+        <div class="total">
+          <p>Total: ₦${subtotal.toLocaleString()}</p>
+        </div>
+        
+        <div class="footer">
+          <p>If you have any questions about your order, please contact our customer service.</p>
+          <p>Thank you for shopping with us!</p>
+        </div>
       </div>
-      
-      <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-        <h3 style="margin-top: 0;">Order Summary</h3>
-        <table style="width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr style="background-color: #f2f2f2;">
-              <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Product</th>
-              <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Quantity</th>
-              <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Price</th>
-              <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsList}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="3" style="padding: 8px; text-align: right; font-weight: bold;">Subtotal:</td>
-              <td style="padding: 8px; font-weight: bold;">₦${subtotal.toLocaleString()}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-      
-      <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-        <h3 style="margin-top: 0;">Shipping Information</h3>
-        <p><strong>Address:</strong> ${customer.address}</p>
-        <p><strong>City:</strong> ${customer.city}</p>
-        <p><strong>State:</strong> ${customer.state}</p>
-      </div>
-      
-      <p>If you have any questions about your order, please contact our customer service team.</p>
-      
-      <p style="text-align: center; margin-top: 30px; color: #666;">
-        Thank you for shopping with The Perfect Shoppe!
-      </p>
-    </div>
+    </body>
+    </html>
   `;
 };

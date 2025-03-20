@@ -29,6 +29,7 @@ export const useCheckout = () => {
     state: '',
     zipCode: '',
     phoneNumber: '',
+    comments: '',
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,6 +46,7 @@ export const useCheckout = () => {
       city: string;
       state: string;
       phoneNumber: string;
+      comments?: string;
     };
     items: typeof items;
     subtotal: typeof subtotal;
@@ -56,7 +58,7 @@ export const useCheckout = () => {
 
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -122,7 +124,8 @@ export const useCheckout = () => {
           address: formData.address,
           city: formData.city,
           state: formData.state,
-          phoneNumber: formData.phoneNumber
+          phoneNumber: formData.phoneNumber,
+          comments: formData.comments
         },
         items,
         subtotal,

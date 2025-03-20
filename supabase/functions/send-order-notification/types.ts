@@ -1,14 +1,5 @@
 
-export interface OrderItem {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-  };
-  quantity: number;
-}
-
-export interface CustomerInfo {
+export interface CustomerData {
   firstName: string;
   lastName: string;
   email: string;
@@ -16,20 +7,25 @@ export interface CustomerInfo {
   city: string;
   state: string;
   phoneNumber: string;
+  comments?: string;
+}
+
+export interface OrderItem {
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    image?: string;
+  };
+  quantity: number;
 }
 
 export interface OrderData {
-  customer: CustomerInfo;
+  customer: CustomerData;
   items: OrderItem[];
   subtotal: number;
   recipientEmail: string;
   orderId: string;
   orderDate: string;
-}
-
-export interface EmailResponse {
-  success: boolean;
-  adminEmail: any;
-  customerEmail: any;
-  error?: string;
+  paymentReference?: string;
 }

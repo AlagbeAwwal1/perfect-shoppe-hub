@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Check, AlertCircle, Info, Download } from 'lucide-react';
+import { Check, Info, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -19,6 +19,7 @@ interface OrderSuccessProps {
       city: string;
       state: string;
       phoneNumber: string;
+      comments?: string;
     };
     items: any[];
     subtotal: number;
@@ -56,6 +57,11 @@ const OrderSuccess = ({ emailStatus, customerEmail, orderDetails }: OrderSuccess
     doc.text(`Phone: ${orderDetails.customer.phoneNumber}`, 20, 100);
     doc.text(`Address: ${orderDetails.customer.address}`, 20, 110);
     doc.text(`City: ${orderDetails.customer.city}, ${orderDetails.customer.state}`, 20, 120);
+    
+    // Add comments if available
+    if (orderDetails.customer.comments) {
+      doc.text(`Comments: ${orderDetails.customer.comments}`, 20, 130);
+    }
     
     // Add order items
     doc.setFontSize(14);
@@ -114,17 +120,6 @@ const OrderSuccess = ({ emailStatus, customerEmail, orderDetails }: OrderSuccess
             <Alert className="mb-6" variant="default">
               <Info className="h-4 w-4" />
               <AlertTitle>Email Delivery Notice</AlertTitle>
-            </Alert>
-          )}
-          
-          {emailStatus === 'failed' && (
-            <Alert className="mb-6" variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Email Delivery Issue</AlertTitle>
-              <AlertDescription>
-                Your order has been placed successfully, but we couldn't send a confirmation email.
-                Please download your receipt using the button below.
-              </AlertDescription>
             </Alert>
           )}
           

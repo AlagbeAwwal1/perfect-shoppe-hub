@@ -3,6 +3,7 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { Textarea } from '@/components/ui/textarea';
 import PaystackCheckout from './PaystackCheckout';
 import { StoreSettings } from '@/types/settings';
 
@@ -16,8 +17,9 @@ interface ShippingFormProps {
     state: string;
     zipCode: string;
     phoneNumber: string;
+    comments: string;
   };
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
   paymentInitiated?: boolean;
@@ -156,6 +158,20 @@ const ShippingForm = ({
             onChange={handleChange}
             required
             disabled={paymentInitiated}
+          />
+        </div>
+        
+        <div className="mb-6">
+          <label htmlFor="comments" className="block text-sm font-medium text-gray-700 mb-1">
+            Comments (Please add the colors of the item you wish to purchase)
+          </label>
+          <Textarea
+            id="comments"
+            name="comments"
+            value={formData.comments || ''}
+            onChange={handleChange}
+            disabled={paymentInitiated}
+            className="min-h-[100px]"
           />
         </div>
         
