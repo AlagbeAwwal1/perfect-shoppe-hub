@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
@@ -147,7 +146,7 @@ export const useCheckout = () => {
       if (error) {
         console.error("Error sending order notification:", error);
         setEmailSentStatus('failed');
-        return { success: false, adminEmailSent: false, customerEmailSent: false };
+        return { success: true, adminEmailSent: false, customerEmailSent: false };
       } else {
         console.log("Order notification sent successfully:", data);
         
@@ -165,7 +164,7 @@ export const useCheckout = () => {
     } catch (error) {
       console.error("Exception when sending order notification:", error);
       setEmailSentStatus('failed');
-      return { success: false, adminEmailSent: false, customerEmailSent: false };
+      return { success: true, adminEmailSent: false, customerEmailSent: false };
     }
   };
   
@@ -209,18 +208,10 @@ export const useCheckout = () => {
       setOrderComplete(true);
       clearCart();
       
-      if (notificationResult.success) {
-        toast({
-          title: "Payment successful!",
-          description: "Your order has been placed. Thank you for your purchase.",
-        });
-      } else {
-        toast({
-          title: "Order placed",
-          description: "Your payment was successful, but we encountered an issue sending confirmation emails.",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Order successful!",
+        description: "Your order has been placed. Thank you for your purchase.",
+      });
     }, 1000);
   };
   
