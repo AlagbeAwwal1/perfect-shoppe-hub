@@ -20,42 +20,71 @@ serve(async (req) => {
 
     // Handle the form data
     const formData = await req.formData();
-    const file = formData.get('image');
+    
+    // Check if we're receiving a single file or multiple files
+    const files = formData.getAll('images');
+    
+    if (!files || files.length === 0) {
+      throw new Error('No image files uploaded');
+    }
+    
+    console.log(`Received ${files.length} file(s) for upload`);
+    
+    const uploadResults = [];
+    
+    // Process each file
+    for (const fileData of files) {
+      if (!(fileData instanceof File)) {
+        console.log('Skipping non-file entry in form data');
+        continue;
+      }
+      
+      const file = fileData as File;
+      console.log('Processing file:', file.name, file.type, file.size);
+      
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `products/${fileName}`;
 
-    if (!file || !(file instanceof File)) {
-      throw new Error('No image file uploaded');
+      const arrayBuffer = await file.arrayBuffer();
+      const fileBytes = new Uint8Array(arrayBuffer);
+
+      const { data, error } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, fileBytes, {
+          contentType: file.type,
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        console.error('Error uploading file:', error);
+        uploadResults.push({
+          originalName: file.name,
+          success: false,
+          error: error.message
+        });
+      } else {
+        // Get the public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        console.log('File uploaded successfully:', publicUrl);
+        uploadResults.push({
+          originalName: file.name,
+          success: true,
+          url: publicUrl
+        });
+      }
     }
 
-    console.log('Received file upload:', file.name, file.type, file.size);
-
-    // Upload to Supabase Storage
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
-    const filePath = `products/${fileName}`;
-
-    const arrayBuffer = await file.arrayBuffer();
-    const fileData = new Uint8Array(arrayBuffer);
-
-    const { data, error } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, fileData, {
-        contentType: file.type,
-        cacheControl: '3600',
-        upsert: false
-      });
-
-    if (error) {
-      console.error('Error uploading file:', error);
-      throw error;
-    }
-
-    // Get the public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath);
-
-    console.log('File uploaded successfully:', publicUrl);
-    return new Response(JSON.stringify({ success: true, url: publicUrl }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      results: uploadResults,
+      urls: uploadResults.filter(r => r.success).map(r => r.url)
+    }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders },
       status: 200,
     });

@@ -14,8 +14,8 @@ export const sendOrderEmails = async (
 ) => {
   const { customer, items, subtotal, recipientEmail, orderId, orderDate, paymentReference } = orderData;
   
-  // Use the provided recipient email or fallback to theperfectshoppe@gmail.com if not provided
-  const adminEmail = recipientEmail || "theperfectshoppe@gmail.com";
+  // Use the provided recipient email or fallback to theperfectshoppe6@gmail.com if not provided
+  const adminEmail = recipientEmail || "theperfectshoppe6@gmail.com";
   
   // Format items for email display
   const itemsList = formatItemsList(items);
