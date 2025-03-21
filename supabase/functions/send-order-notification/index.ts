@@ -37,22 +37,9 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
     
-    // Get the API key
-    const apiKey = Deno.env.get("RESEND_API_KEY");
-    if (!apiKey) {
-      console.error("RESEND_API_KEY environment variable is not set");
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: "RESEND_API_KEY is not set - Please set this in the Supabase Edge Function secrets" 
-        }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
-    }
-
+    // Get the API key from the provided value
+    const apiKey = "re_BFYaU2bG_Nv76XUgkMk3DB124sPPotNbM"; // Using the provided API key
+    
     // Send the emails
     const emailResults = await sendOrderEmails(orderData, apiKey);
 
