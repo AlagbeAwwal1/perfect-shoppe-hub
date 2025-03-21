@@ -56,6 +56,8 @@ const handler = async (req: Request): Promise<Response> => {
     // Send the emails
     const emailResults = await sendOrderEmails(orderData, apiKey);
 
+    // Return a success response even if emails had errors
+    // This allows the order process to continue
     return new Response(
       JSON.stringify({ 
         success: true, 

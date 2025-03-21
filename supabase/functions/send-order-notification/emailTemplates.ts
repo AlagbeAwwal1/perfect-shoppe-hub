@@ -1,8 +1,8 @@
 
 import { CustomerInfo, OrderItem } from "./types.ts";
 
-// Define the sender email
-export const SENDER_EMAIL = "Order Notification <onboarding@resend.dev>";
+// Define the sender email - if you verify a domain in Resend, update this to use your domain
+export const SENDER_EMAIL = "The Perfect Shoppe <onboarding@resend.dev>";
 
 export const formatItemsList = (items: OrderItem[]): string => {
   return items.map(item => 
@@ -20,7 +20,8 @@ export const generateAdminEmailHtml = (
   itemsList: string,
   subtotal: number,
   orderId: string,
-  orderDate: string
+  orderDate: string,
+  paymentReference?: string
 ) => {
   return `
     <!DOCTYPE html>
@@ -53,6 +54,7 @@ export const generateAdminEmailHtml = (
           <p><strong>Order ID:</strong> ${orderId}</p>
           <p><strong>Date:</strong> ${orderDate}</p>
           <p><strong>Total Amount:</strong> ₦${subtotal.toLocaleString()}</p>
+          ${paymentReference ? `<p><strong>Payment Reference:</strong> ${paymentReference}</p>` : ''}
         </div>
         
         <div class="customer-info">

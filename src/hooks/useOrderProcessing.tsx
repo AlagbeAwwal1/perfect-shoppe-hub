@@ -82,9 +82,9 @@ export const useOrderProcessing = () => {
       
       if (itemsError) {
         console.error("Error creating order items:", itemsError);
+      } else {
+        console.log("Order items created successfully");
       }
-      
-      console.log("Order items created successfully");
       
       return orderData.id;
     } catch (error) {
@@ -105,6 +105,7 @@ export const useOrderProcessing = () => {
         day: 'numeric',
       });
       
+      // Prepare the order data
       const orderData = {
         customer: {
           firstName: formData.firstName,
@@ -139,11 +140,26 @@ export const useOrderProcessing = () => {
           console.error("Error sending order notification:", error);
           setEmailSentStatus('limited');
           return { success: true, adminEmailSent: false, customerEmailSent: false };
-        } else {
-          console.log("Order notification sent successfully:", data);
-          setEmailSentStatus('success');
-          return { success: true, adminEmailSent: true, customerEmailSent: true };
         }
+        
+        console.log("Order notification sent successfully:", data);
+        
+        // Check if there were actual email errors
+        const hasEmailErrors = 
+          (data?.adminEmail?.error || data?.customerEmail?.error) ? true : false;
+        
+        if (hasEmailErrors) {
+          console.log("Email service reported errors, but order was processed");
+          setEmailSentStatus('limited');
+        } else {
+          setEmailSentStatus('success');
+        }
+        
+        return { 
+          success: true, 
+          adminEmailSent: !data?.adminEmail?.error, 
+          customerEmailSent: !data?.customerEmail?.error 
+        };
       } catch (notificationError) {
         console.error("Exception when sending order notification:", notificationError);
         setEmailSentStatus('limited');
