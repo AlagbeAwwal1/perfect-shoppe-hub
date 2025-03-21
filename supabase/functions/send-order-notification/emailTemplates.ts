@@ -1,3 +1,4 @@
+
 import { CustomerInfo, OrderItem } from "./types.ts";
 
 // Define the sender email
@@ -64,14 +65,28 @@ export const generateAdminEmailHtml = (
         </div>
         
         <h2>Items Ordered</h2>
-        ${itemsList}
-        
-        <div class="total">
-          <p>Total: ₦${subtotal.toLocaleString()}</p>
-        </div>
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsList}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="text-align: right; padding: 8px;"><strong>Total:</strong></td>
+              <td style="padding: 8px;">₦${subtotal.toLocaleString()}</td>
+            </tr>
+          </tfoot>
+        </table>
         
         <div class="footer">
-          <p>This is an automated message. Please do not reply to this email.</p>
+          <p>This is an automated message from The Perfect Shoppe.</p>
         </div>
       </div>
     </body>
@@ -127,15 +142,30 @@ export const generateCustomerEmailHtml = (
         </div>
         
         <h2>Items Ordered</h2>
-        ${itemsList}
-        
-        <div class="total">
-          <p>Total: ₦${subtotal.toLocaleString()}</p>
-        </div>
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsList}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="text-align: right; padding: 8px;"><strong>Total:</strong></td>
+              <td style="padding: 8px;">₦${subtotal.toLocaleString()}</td>
+            </tr>
+          </tfoot>
+        </table>
         
         <div class="footer">
           <p>If you have any questions about your order, please contact our customer service.</p>
           <p>Thank you for shopping with us!</p>
+          <p>The Perfect Shoppe</p>
         </div>
       </div>
     </body>
