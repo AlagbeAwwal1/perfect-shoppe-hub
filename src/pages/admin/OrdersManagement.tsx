@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
@@ -26,6 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getOrdersFromDB, updateOrderStatus } from '@/data/supabaseOrders';
 import { Order, OrderStatus } from '@/types/order';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const statusStyles = {
   pending: 'bg-yellow-500',
@@ -44,7 +45,36 @@ const OrdersManagement = () => {
     queryKey: ['admin-orders'],
     queryFn: getOrdersFromDB,
     enabled: isAdmin,
+    // Refresh orders data every 30 seconds
+    refetchInterval: 30000,
+    // Refetch when the component regains focus
+    refetchOnWindowFocus: true,
   });
+
+  // Set up a real-time listener for new orders
+  useEffect(() => {
+    if (!isAdmin) return;
+    
+    console.log('Setting up real-time listener for orders table');
+    
+    const channel = supabase
+      .channel('orders-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        (payload) => {
+          console.log('Order table change detected:', payload);
+          // Invalidate and refetch orders when any change happens
+          queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up orders real-time listener');
+      supabase.removeChannel(channel);
+    };
+  }, [isAdmin, queryClient]);
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ orderId, status }: { orderId: string; status: OrderStatus }) => 

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -33,6 +33,7 @@ import { Separator } from '@/components/ui/separator';
 import { getOrderByIdFromDB, updateOrderStatus } from '@/data/supabaseOrders';
 import { OrderStatus } from '@/types/order';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const statusStyles = {
   pending: 'bg-yellow-500',
@@ -53,7 +54,43 @@ const OrderDetails = () => {
     queryKey: ['admin-order', id],
     queryFn: () => getOrderByIdFromDB(id as string),
     enabled: !!id && isAdmin,
+    // Refetch when the component regains focus
+    refetchOnWindowFocus: true,
   });
+
+  // Set up a real-time listener for order changes
+  useEffect(() => {
+    if (!isAdmin || !id) return;
+    
+    console.log(`Setting up real-time listener for order ${id}`);
+    
+    const channel = supabase
+      .channel(`order-${id}-changes`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders', filter: `id=eq.${id}` },
+        (payload) => {
+          console.log('Order change detected:', payload);
+          // Refresh the order data
+          queryClient.invalidateQueries({ queryKey: ['admin-order', id] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'order_items', filter: `order_id=eq.${id}` },
+        (payload) => {
+          console.log('Order items change detected:', payload);
+          // Refresh the order data including its items
+          queryClient.invalidateQueries({ queryKey: ['admin-order', id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log(`Cleaning up order ${id} real-time listener`);
+      supabase.removeChannel(channel);
+    };
+  }, [isAdmin, id, queryClient]);
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ orderId, status }: { orderId: string; status: OrderStatus }) => 
