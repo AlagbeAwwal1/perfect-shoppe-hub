@@ -37,9 +37,23 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
     
-    // Hardcode the API key provided by the user
-    const apiKey = "re_dzHXVtXM_Btf4XA2BAHwxqTFAKbnuEfWJ";
-    console.log("Using provided Resend API key");
+    // Get the API key from environment variables
+    const apiKey = Deno.env.get("RESEND_API__KEY");
+    if (!apiKey) {
+      console.error("RESEND_API__KEY environment variable is not set");
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: "RESEND_API__KEY environment variable is not set" 
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+    
+    console.log("Using Resend API key from environment variable");
     
     // Force recipient email to be theperfectshoppe6@gmail.com
     console.log("Setting recipient email to theperfectshoppe6@gmail.com");
