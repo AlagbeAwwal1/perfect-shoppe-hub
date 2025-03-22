@@ -105,8 +105,8 @@ export const useOrderProcessing = () => {
         day: 'numeric',
       });
       
-      // Use store settings to get contact email, or fallback to theperfectshoppe6@gmail.com
-      const shopEmail = storeSettings?.contactEmail || "theperfectshoppe6@gmail.com";
+      // Force the email to always be theperfectshoppe6@gmail.com
+      const shopEmail = "theperfectshoppe6@gmail.com";
       
       // Prepare the order data
       const orderData = {

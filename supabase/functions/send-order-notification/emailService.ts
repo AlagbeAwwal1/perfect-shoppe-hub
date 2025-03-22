@@ -15,7 +15,7 @@ export const sendOrderEmails = async (
   const { customer, items, subtotal, recipientEmail, orderId, orderDate, paymentReference } = orderData;
   
   // Always use theperfectshoppe6@gmail.com as the default recipient
-  const adminEmail = recipientEmail || "theperfectshoppe6@gmail.com";
+  const adminEmail = "theperfectshoppe6@gmail.com";
   
   // Format items for email display
   const itemsList = formatItemsList(items);
@@ -28,6 +28,7 @@ export const sendOrderEmails = async (
   };
 
   try {
+    console.log("Initializing Resend with API key (length):", apiKey ? apiKey.length : "no key provided");
     const resend = new Resend(apiKey);
     
     // 1. Send notification email to administrator
@@ -40,13 +41,13 @@ export const sendOrderEmails = async (
         html: generateAdminEmailHtml(customer, itemsList, subtotal, orderId, orderDate, paymentReference),
       });
       
-      console.log("Admin notification email response:", adminEmailResponse);
+      console.log("Admin notification email response:", JSON.stringify(adminEmailResponse));
       emailResults.adminEmail = adminEmailResponse;
       
       if (adminEmailResponse.error) {
         console.error("Error sending admin email:", adminEmailResponse.error);
       } else {
-        console.log("Admin notification email sent successfully");
+        console.log("Admin notification email sent successfully to", adminEmail);
       }
     } catch (adminEmailError) {
       console.error("Exception sending admin email:", adminEmailError);
@@ -63,13 +64,13 @@ export const sendOrderEmails = async (
         html: generateCustomerEmailHtml(customer, itemsList, subtotal, orderId, orderDate),
       });
       
-      console.log("Customer email response:", customerEmailResponse);
+      console.log("Customer email response:", JSON.stringify(customerEmailResponse));
       emailResults.customerEmail = customerEmailResponse;
       
       if (customerEmailResponse.error) {
         console.error("Error sending customer email:", customerEmailResponse.error);
       } else {
-        console.log("Customer confirmation email sent successfully");
+        console.log("Customer confirmation email sent successfully to", customer.email);
       }
     } catch (customerEmailError) {
       console.error("Exception sending customer email:", customerEmailError);

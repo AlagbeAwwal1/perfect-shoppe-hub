@@ -37,34 +37,20 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
     
-    // Get the API key from the environment variable
-    const apiKey = Deno.env.get("RESEND_API_KEY");
-    if (!apiKey) {
-      console.error("RESEND_API_KEY environment variable is not set");
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: "RESEND_API_KEY is not set - Please set this in the Supabase Edge Function secrets" 
-        }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
-    }
+    // Hardcode the API key provided by the user
+    const apiKey = "re_dzHXVtXM_Btf4XA2BAHwxqTFAKbnuEfWJ";
+    console.log("Using provided Resend API key");
     
-    // Ensure recipient email is set to theperfectshoppe6@gmail.com if not provided
-    if (!orderData.recipientEmail || orderData.recipientEmail.trim() === "") {
-      console.log("No recipient email provided, using default theperfectshoppe6@gmail.com");
-      orderData.recipientEmail = "theperfectshoppe6@gmail.com";
-    }
+    // Force recipient email to be theperfectshoppe6@gmail.com
+    console.log("Setting recipient email to theperfectshoppe6@gmail.com");
+    orderData.recipientEmail = "theperfectshoppe6@gmail.com";
     
     // Send the emails
     const emailResults = await sendOrderEmails(orderData, apiKey);
 
     // Log email sending results
-    console.log("Admin email result:", emailResults.adminEmail);
-    console.log("Customer email result:", emailResults.customerEmail);
+    console.log("Admin email result:", JSON.stringify(emailResults.adminEmail));
+    console.log("Customer email result:", JSON.stringify(emailResults.customerEmail));
 
     // Return a success response even if emails had errors
     // This allows the order process to continue
