@@ -1,26 +1,31 @@
 
+export interface CustomerData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  address: string;
+  city: string;
+  state: string;
+  phoneNumber: string;
+  comments?: string;
+}
+
 export interface OrderItem {
-  name: string;
-  price: number;
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    image?: string;
+  };
   quantity: number;
 }
 
-export interface OrderNotificationPayload {
-  orderId: string;
-  customerName: string;
-  customerEmail: string;
-  status: string;
+export interface OrderData {
+  customer: CustomerData;
   items: OrderItem[];
-  total: number;
-  notificationType: 'confirmation' | 'status-update' | 'report';
-  previousStatus?: string;
-}
-
-export interface EmailTemplateData {
+  subtotal: number;
+  recipientEmail: string;
   orderId: string;
-  customerName: string;
-  items: OrderItem[];
-  total: number;
-  status: string;
-  previousStatus?: string;
+  orderDate: string;
+  paymentReference?: string;
 }

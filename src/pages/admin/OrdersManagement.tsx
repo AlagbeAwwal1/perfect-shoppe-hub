@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
-import { Edit, Eye, RotateCcw, Mail } from 'lucide-react';
+import { Edit, Eye, RotateCcw } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import {
   Table,
@@ -76,59 +76,14 @@ const OrdersManagement = () => {
     };
   }, [isAdmin, queryClient]);
 
-  // Function to send email notification about order status change
-  const sendStatusUpdateEmail = async (order: Order, newStatus: OrderStatus) => {
-    try {
-      console.log(`Sending status update email for order ${order.id}`);
-      
-      // Call the Supabase Edge Function to send the email
-      const { data, error } = await supabase.functions.invoke('send-order-notification', {
-        body: {
-          orderId: order.id,
-          customerName: `${order.customer.firstName} ${order.customer.lastName}`,
-          customerEmail: order.customer.email,
-          status: newStatus,
-          items: order.items.map(item => ({
-            name: item.product_name,
-            price: item.product_price,
-            quantity: item.quantity
-          })),
-          total: order.total,
-          // Add additional data for notification
-          notificationType: 'status-update',
-          previousStatus: order.status
-        }
-      });
-
-      if (error) {
-        console.error('Error sending status update email:', error);
-        throw new Error(`Failed to send email: ${error.message}`);
-      }
-
-      console.log('Status update email sent successfully:', data);
-      return data;
-    } catch (error) {
-      console.error('Error in sendStatusUpdateEmail:', error);
-      throw error;
-    }
-  };
-
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ orderId, status, order }: { orderId: string; status: OrderStatus; order: Order }) => {
-      // First update the order status in the database
-      await updateOrderStatus(orderId, status);
-      
-      // Then send the email notification about the status change
-      // Only send if the status actually changed
-      if (order.status !== status) {
-        await sendStatusUpdateEmail(order, status);
-      }
-    },
+    mutationFn: ({ orderId, status }: { orderId: string; status: OrderStatus }) => 
+      updateOrderStatus(orderId, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
       toast({
         title: 'Status updated',
-        description: 'Order status has been updated successfully and notification email sent.',
+        description: 'Order status has been updated successfully.',
       });
     },
     onError: (error: any) => {
@@ -141,55 +96,7 @@ const OrdersManagement = () => {
   });
 
   const handleStatusChange = (orderId: string, status: OrderStatus) => {
-    // Find the order in the orders array
-    const order = orders.find(o => o.id === orderId);
-    if (!order) {
-      toast({
-        title: 'Error',
-        description: 'Order not found.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    updateStatusMutation.mutate({ orderId, status, order });
-  };
-
-  // Function to manually send order report email
-  const sendOrderReport = async (order: Order) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('send-order-notification', {
-        body: {
-          orderId: order.id,
-          customerName: `${order.customer.firstName} ${order.customer.lastName}`,
-          customerEmail: order.customer.email,
-          status: order.status,
-          items: order.items.map(item => ({
-            name: item.product_name,
-            price: item.product_price,
-            quantity: item.quantity
-          })),
-          total: order.total,
-          notificationType: 'report',
-        }
-      });
-
-      if (error) {
-        throw new Error(`Failed to send report: ${error.message}`);
-      }
-
-      toast({
-        title: 'Report Sent',
-        description: 'Order report has been sent to your email.',
-      });
-    } catch (error) {
-      console.error('Error sending order report:', error);
-      toast({
-        title: 'Error',
-        description: `Failed to send order report: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: 'destructive',
-      });
-    }
+    updateStatusMutation.mutate({ orderId, status });
   };
 
   if (!isAdmin) {
@@ -272,21 +179,12 @@ const OrdersManagement = () => {
                         </Select>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end space-x-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => sendOrderReport(order)}
-                            title="Send order report"
-                          >
-                            <Mail className="h-4 w-4" />
+                        <Link to={`/admin/orders/${order.id}`}>
+                          <Button variant="ghost" size="sm">
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
                           </Button>
-                          <Link to={`/admin/orders/${order.id}`}>
-                            <Button variant="ghost" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                        </div>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))}
