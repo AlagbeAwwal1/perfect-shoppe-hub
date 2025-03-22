@@ -1,104 +1,111 @@
 
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { OrderData } from "./types.ts";
-import { corsHeaders } from "./corsHeaders.ts";
-import { sendOrderEmails } from "./emailService.ts";
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { corsHeaders } from './corsHeaders.ts';
+import { sendEmail } from './emailService.ts';
+import { 
+  createOrderStatusUpdateTemplate, 
+  createOrderReportTemplate,
+  createOrderConfirmationTemplate 
+} from './emailTemplates.ts';
+import type { OrderItem, OrderNotificationPayload } from './types.ts';
 
-const handler = async (req: Request): Promise<Response> => {
+console.log('Order notification function started.');
+
+serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    // Log incoming request headers and body to debug
-    console.log("Request headers:", Object.fromEntries(req.headers.entries()));
-    
-    // Clone the request to read the body twice
-    const clonedReq = req.clone();
-    const bodyText = await clonedReq.text();
-    console.log("Request body:", bodyText);
-    
-    // Parse the body as JSON - handle parsing errors explicitly
-    let orderData: OrderData;
-    try {
-      orderData = JSON.parse(bodyText);
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError.message);
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: `Invalid JSON in request body: ${parseError.message}` 
-        }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
-    }
-    
-    // Get the API key from environment variables
-    const apiKey = Deno.env.get("RESEND_API__KEY");
-    if (!apiKey) {
-      console.error("RESEND_API__KEY environment variable is not set");
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: "RESEND_API__KEY environment variable is not set" 
-        }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
-    }
-    
-    console.log("Using Resend API key from environment variable");
-    
-    // Force recipient email to be theperfectshoppe6@gmail.com
-    console.log("Setting recipient email to theperfectshoppe6@gmail.com");
-    orderData.recipientEmail = "theperfectshoppe6@gmail.com";
-    
-    // Send the emails
-    const emailResults = await sendOrderEmails(orderData, apiKey);
+    const { 
+      orderId, 
+      customerName, 
+      customerEmail, 
+      status, 
+      items, 
+      total, 
+      notificationType,
+      previousStatus 
+    } = await req.json() as OrderNotificationPayload;
 
-    // Log email sending results
-    console.log("Admin email result:", JSON.stringify(emailResults.adminEmail));
-    console.log("Customer email result:", JSON.stringify(emailResults.customerEmail));
+    console.log(`Processing ${notificationType} notification for order ${orderId}`);
+    console.log('Order details:', { customerName, status, total, items });
 
-    // Return a success response even if emails had errors
-    // This allows the order process to continue
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        adminEmail: emailResults.adminEmail,
-        customerEmail: emailResults.customerEmail
-      }), 
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          ...corsHeaders,
-        },
-      }
-    );
-  } catch (error: any) {
-    // Log detailed error information
-    console.error("Error in send-order-notification function:", error);
-    console.error("Error stack:", error.stack);
+    // Determine the email subject and template based on the notification type
+    let subject = '';
+    let htmlContent = '';
     
+    if (notificationType === 'confirmation') {
+      subject = `Order Confirmation - Order #${orderId.substring(0, 8)}`;
+      htmlContent = createOrderConfirmationTemplate({
+        orderId,
+        customerName,
+        items,
+        total,
+        status
+      });
+    } else if (notificationType === 'status-update') {
+      subject = `Order Status Updated to ${status.toUpperCase()} - Order #${orderId.substring(0, 8)}`;
+      htmlContent = createOrderStatusUpdateTemplate({
+        orderId,
+        customerName,
+        items,
+        total,
+        status,
+        previousStatus: previousStatus || 'unknown'
+      });
+    } else if (notificationType === 'report') {
+      subject = `Order Report - Order #${orderId.substring(0, 8)}`;
+      htmlContent = createOrderReportTemplate({
+        orderId,
+        customerName,
+        items,
+        total,
+        status
+      });
+    } else {
+      throw new Error(`Unknown notification type: ${notificationType}`);
+    }
+
+    console.log(`Sending ${notificationType} email with subject: ${subject}`);
+
+    const emailResult = await sendEmail({
+      to: 'theperfectshoppe6@gmail.com', // Always send to the business email
+      subject,
+      html: htmlContent,
+    });
+
+    console.log('Email sending result:', emailResult);
+
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message || "Unknown error occurred",
-        stack: error.stack 
+      JSON.stringify({
+        success: true,
+        message: `${notificationType} email sent successfully`,
       }),
       {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+        status: 200,
+      }
+    );
+  } catch (error) {
+    console.error('Error in order notification function:', error);
+    
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error.message || 'An unknown error occurred',
+      }),
+      {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
         status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
   }
-};
-
-serve(handler);
+});
