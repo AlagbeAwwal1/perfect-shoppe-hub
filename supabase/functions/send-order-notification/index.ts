@@ -53,8 +53,18 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
     
+    // Ensure recipient email is set to theperfectshoppe6@gmail.com if not provided
+    if (!orderData.recipientEmail || orderData.recipientEmail.trim() === "") {
+      console.log("No recipient email provided, using default theperfectshoppe6@gmail.com");
+      orderData.recipientEmail = "theperfectshoppe6@gmail.com";
+    }
+    
     // Send the emails
     const emailResults = await sendOrderEmails(orderData, apiKey);
+
+    // Log email sending results
+    console.log("Admin email result:", emailResults.adminEmail);
+    console.log("Customer email result:", emailResults.customerEmail);
 
     // Return a success response even if emails had errors
     // This allows the order process to continue

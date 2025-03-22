@@ -105,6 +105,9 @@ export const useOrderProcessing = () => {
         day: 'numeric',
       });
       
+      // Use store settings to get contact email, or fallback to theperfectshoppe6@gmail.com
+      const shopEmail = storeSettings?.contactEmail || "theperfectshoppe6@gmail.com";
+      
       // Prepare the order data
       const orderData = {
         customer: {
@@ -119,7 +122,7 @@ export const useOrderProcessing = () => {
         },
         items,
         subtotal,
-        recipientEmail: storeSettings?.contactEmail || "theperfectshoppe6@gmail.com", // Use store email or fallback
+        recipientEmail: shopEmail, // Explicitly set the shop email
         orderId,
         orderDate,
         paymentReference
