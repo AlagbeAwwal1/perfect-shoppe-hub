@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
+import { Resend } from "resend";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -54,13 +54,13 @@ const handler = async (req: Request): Promise<Response> => {
     }
     
     // Get the API key
-    const apiKey = Deno.env.get("RESEND_API_KEY");
+    const apiKey = Deno?.env?.get("RESEND_API__KEY");
     if (!apiKey) {
-      console.error("RESEND_API_KEY environment variable is not set");
+      console.error("RESEND_API__KEY environment variable is not set");
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: "RESEND_API_KEY is not set - Please set this in the Supabase Edge Function secrets" 
+          error: "RESEND_API__KEY is not set - Please set this in the Supabase Edge Function secrets" 
         }),
         {
           status: 500,
@@ -73,7 +73,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     // Validate required fields
     if (!name || !email || !subject || !message) {
-      const missingFields = [];
+      const missingFields: string[] = [];
       if (!name) missingFields.push("name");
       if (!email) missingFields.push("email");
       if (!subject) missingFields.push("subject");
@@ -107,7 +107,7 @@ const handler = async (req: Request): Promise<Response> => {
         <h2>Message:</h2>
         <p>${message.replace(/\n/g, "<br>")}</p>
       `,
-      reply_to: email,
+      replyTo: email,
     });
 
     console.log("Email sent successfully:", emailResponse);
@@ -119,22 +119,33 @@ const handler = async (req: Request): Promise<Response> => {
         ...corsHeaders,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Log detailed error information
-    console.error("Error in send-contact-email function:", error);
-    console.error("Error stack:", error.stack);
-    
-    return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message || "Unknown error occurred",
-        stack: error.stack 
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
-    );
+    if (error instanceof Error) {
+      console.error("Error in send-contact-email function:", error);
+      console.error("Error stack:", error.stack);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: error.message,
+          stack: error.stack 
+        }),
+      );
+    } else {
+      console.error("Unknown error in send-contact-email function:", error);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: "Unknown error occurred",
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
   }
 };
 
