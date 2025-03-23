@@ -2,10 +2,10 @@
 import { Resend } from "npm:resend@2.0.0";
 import { OrderData } from "./types.ts";
 import { 
-  SENDER_EMAIL, 
   formatItemsList, 
   generateAdminEmailHtml, 
-  generateCustomerEmailHtml 
+  generateCustomerEmailHtml,
+  SENDER_EMAIL
 } from "./emailTemplates.ts";
 
 export const sendOrderEmails = async (
