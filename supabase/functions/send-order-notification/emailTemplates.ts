@@ -1,5 +1,5 @@
 
-import { OrderItem } from "./types.ts";
+import { CustomerInfo, OrderItem } from "./types.ts";
 
 // Define the sender email - if you verify a domain in Resend, update this to use your domain
 export const SENDER_EMAIL = "The Perfect Shoppe <onboarding@resend.dev>";

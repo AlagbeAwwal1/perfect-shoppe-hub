@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 
 interface FormData {
   name: string;
@@ -131,7 +130,7 @@ const ContactForm = () => {
       </div>
       <div className="mb-6">
         <label htmlFor="message" className="block text-gray-700 mb-2">Message</label>
-        <Textarea
+        <textarea
           id="message"
           name="message"
           value={formData.message}
@@ -141,7 +140,7 @@ const ContactForm = () => {
           className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent"
           placeholder="Your message"
           disabled={isSubmitting}
-        />
+        ></textarea>
       </div>
       <Button
         type="submit"
