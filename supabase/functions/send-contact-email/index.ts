@@ -53,7 +53,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
     
-    // Get the API key - Fix the key name to match what's set in environment variables
+    // Get the API key
     const apiKey = Deno.env.get("RESEND_API_KEY");
     if (!apiKey) {
       console.error("RESEND_API_KEY environment variable is not set");
